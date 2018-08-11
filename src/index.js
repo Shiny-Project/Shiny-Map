@@ -1,58 +1,38 @@
 import 'ol/ol.css';
-import { Map, View } from 'ol';
-import TileLayer from 'ol/layer/Tile';
+import { Map, View } from 'ol'
 import OSM from 'ol/source/OSM';
 import GeoJSON from 'ol/format/GeoJSON.js';
+import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import { fromLonLat, toLonLat } from 'ol/proj.js';
-import { Fill, Stroke, Style, Text } from 'ol/style.js';
+import { Fill, Stroke, Style } from 'ol/style.js';
 const style1 = new Style({
     fill: new Fill({
-        color: 'rgba(255, 255, 255, 0.6)'
+        color: '#444444'
     }),
     stroke: new Stroke({
-        color: '#319FD3',
+        color: '#aaa',
         width: 1
     }),
-    text: new Text({
-        font: '12px Calibri,sans-serif',
-        fill: new Fill({
-            color: '#000'
-        }),
-        stroke: new Stroke({
-            color: '#fff',
-            width: 3
-        })
-    })
 });
 const style2 = new Style({
     fill: new Fill({
         color: 'red'
     }),
     stroke: new Stroke({
-        color: '#319FD3',
+        color: '#aaa',
         width: 1
     }),
-    text: new Text({
-        font: '12px Calibri,sans-serif',
-        fill: new Fill({
-            color: '#000'
-        }),
-        stroke: new Stroke({
-            color: '#fff',
-            width: 3
-        })
-    })
 });
-console.log(style1);
 const map = new Map({
     target: 'map',
     layers: [
         new VectorLayer({
             source: new VectorSource({
                 url: '../data/gadm36_CHN_2.json',
-                format: new GeoJSON()
+                format: new GeoJSON(),
+
             }),
             style: feature => {
                 if (feature.values_['NL_NAME_2'] === "杭州市") {
@@ -66,5 +46,6 @@ const map = new Map({
     view: new View({
         center: fromLonLat([119.7889, 29.1416]),
         zoom: 8
-    })
+    }),
+    controls: []
 });
