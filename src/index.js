@@ -1,51 +1,38 @@
 import 'ol/ol.css';
-import { Map, View } from 'ol'
-import OSM from 'ol/source/OSM';
-import GeoJSON from 'ol/format/GeoJSON.js';
-import TileLayer from 'ol/layer/Tile';
-import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
-import { fromLonLat, toLonLat } from 'ol/proj.js';
-import { Fill, Stroke, Style } from 'ol/style.js';
-const style1 = new Style({
-    fill: new Fill({
+import utils from './utils';
+
+const defaultStyle = new ol.style.Style({
+    fill: new ol.style.Fill({
         color: '#444444'
     }),
-    stroke: new Stroke({
+    stroke: new ol.style.Stroke({
         color: '#aaa',
         width: 1
     }),
 });
-const style2 = new Style({
-    fill: new Fill({
-        color: 'red'
-    }),
-    stroke: new Stroke({
-        color: '#aaa',
-        width: 1
-    }),
+
+const MapVectorSource = new ol.source.Vector({
+    url: '../data/gadm36_CHN_2.json',
+    format: new ol.format.GeoJSON(),
 });
-const map = new Map({
+
+const map = new ol.Map({
     target: 'map',
     layers: [
-        new VectorLayer({
-            source: new VectorSource({
-                url: '../data/gadm36_CHN_2.json',
-                format: new GeoJSON(),
-
-            }),
-            style: feature => {
-                if (feature.values_['NL_NAME_2'] === "杭州市") {
-                    return style2;
-                } else {
-                    return style1;
-                }
-            }
+        new ol.layer.Vector({
+            source: MapVectorSource,
+            style: defaultStyle
         })
     ],
-    view: new View({
-        center: fromLonLat([119.7889, 29.1416]),
+    view: new ol.View({
+        center: ol.proj.fromLonLat([119.7889, 29.1416]),
         zoom: 8
     }),
-    controls: []
+    controls: [],
 });
+
+map.on('postrender', () => {
+    map.on('postrender', draw)
+});
+
+window.map = map;
