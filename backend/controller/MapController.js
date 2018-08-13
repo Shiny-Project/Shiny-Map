@@ -30,9 +30,9 @@ class MapController {
         if (!center) {
             return response.status(400).json(APIResponse.error('missing_parameters', '缺少 center 参数'));
         }
-        
+
         const provinceData = require('../definition/china_provinces');
-        
+
         if (!Object.keys(provinceData).includes(center)) {
             return response.status(400).json(APIResponse.error('missing_parameters', '不支持的省份'));
         }
@@ -91,3 +91,13 @@ class MapController {
 }
 
 module.exports = new MapController();
+
+const result = {};
+map.getLayers().getArray()[1].getSource().forEachFeature(feature => {
+    if (feature.getProperties()['NL_NAME_2']) {
+        result[feature.getProperties()['NL_NAME_2']] = {
+            parent: feature.getProperties()['NL_NAME_1'],
+            coordinates: ol.extent.getCenter(ol.proj.transformExtent(feature.getGeometry().getExtent(), 'EPSG:3857', 'EPSG:4326'))
+        }
+    }
+});

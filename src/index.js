@@ -11,8 +11,13 @@ const defaultStyle = new ol.style.Style({
     }),
 });
 
-const MapVectorSource = new ol.source.Vector({
+const ChinaMapVectorSource = new ol.source.Vector({
     url: '../data/gadm36_CHN_2.json',
+    format: new ol.format.GeoJSON(),
+});
+
+const JapanMapVectorSource = new ol.source.Vector({
+    url: '../data/gadm36_JPN_2.json',
     format: new ol.format.GeoJSON(),
 });
 
@@ -20,7 +25,11 @@ const map = new ol.Map({
     target: 'map',
     layers: [
         new ol.layer.Vector({
-            source: MapVectorSource,
+            source: ChinaMapVectorSource,
+            style: defaultStyle
+        }),
+        new ol.layer.Vector({
+            source: JapanMapVectorSource,
             style: defaultStyle
         })
     ],
@@ -29,10 +38,6 @@ const map = new ol.Map({
         zoom: 8
     }),
     controls: [],
-});
-
-map.on('postrender', () => {
-    map.on('postrender', draw)
 });
 
 window.map = map;
