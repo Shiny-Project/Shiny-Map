@@ -59,20 +59,16 @@ class MapController {
         if (!global.isBrowserLoaded) {
             return response.status(500).json(APIResponse.error('try_again_later', '人家还没准备好'));
         }
-        let shindoData, epicenter;
+        let shindoData;
         try {
             shindoData = JSON.parse(request.body.shindo);
-            epicenter = JSON.parse(request.body.epicenter);
         } catch (e) {
             return response.status(400).json(APIResponse.error('bad_json', '无法解析 JSON'));
         }
         
-        if (!Array.isArray(epicenter) || epicenter.length !== 2) {
-            return response.status(400).json(APIResponse.error('bad_epicenter', '无法解析 Epicenter'));
-        }
         
         const MapService = require('../service/MapService');
-        const path = await MapService.shindoEarlyReport(epicenter, shindoData);
+        const path = await MapService.shindoEarlyReport(shindoData);
         response.json(APIResponse.success({
             path
         }));

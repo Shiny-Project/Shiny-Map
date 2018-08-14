@@ -61,7 +61,7 @@ module.exports = {
      * 震度速报图
      * @param shindo 震度数据
      */
-    shindoEarlyReport: async (epicenter, shindo) => {
+    shindoEarlyReport: async (shindo) => {
         const page = global.page;
         const areaData = require('../definition/jma_area');
         const shindoGeoJson = {
@@ -88,20 +88,6 @@ module.exports = {
                 }
             }
         }
-
-
-        // 震中
-
-        shindoGeoJson.features.push({
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": epicenter
-            },
-            "properties": {
-                "intensity": 'x'
-            }
-        })
 
         try {
             await page.evaluate((shindoGeoJson) => {
