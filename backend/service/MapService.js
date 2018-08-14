@@ -58,14 +58,28 @@ module.exports = {
      * 震度速报图
      * @param shindo 震度数据
      */
-    shindoEarlyReport: async (shindo) => {
+    shindoEarlyReport: async (epicenter, shindo) => {
         const page = global.page;
         const areaData = require('../definition/jma_area');
         const shindoGeoJson = {
             "type": "FeatureCollection",
             "features": []
         };
-        
+
+        // 震中
+
+        shindoGeoJson.features.push({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": epicenter
+            },
+            "properties": {
+                "intensity": 'x'
+            }
+        })
+
+        // 各地震度
         for (const intensity of ["1", "2", "3", "4", "5-", "5+", "6-", "6+", "7"]) {
             if (shindo[intensity]) {
                 for (const area of shindo[intensity]) {
@@ -88,6 +102,12 @@ module.exports = {
         try {
             await page.evaluate((shindoGeoJson) => {
                 const shindoStyle = {
+                    "x": new ol.style.Style({
+                        image: new ol.style.Icon({
+                            scale: 0.075,
+                            src: '../data/images/epicenter.png'
+                        })
+                    }),
                     "1": new ol.style.Style({
                         image: new ol.style.Icon({
                             scale: 0.05,
@@ -181,14 +201,29 @@ module.exports = {
 
         return path;
     },
-    shindoReport: async (shindo) => {
+    shindoReport: async (epicenter, shindo) => {
         const page = global.page;
         const areaData = require('../definition/jma_city');
         const shindoGeoJson = {
             "type": "FeatureCollection",
             "features": []
         };
-        
+
+        // 震中
+
+        shindoGeoJson.features.push({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": epicenter
+            },
+            "properties": {
+                "intensity": 'x'
+            }
+        })
+
+        // 震度
+
         for (const intensity of ["1", "2", "3", "4", "5-", "5+", "6-", "6+", "7"]) {
             if (shindo[intensity]) {
                 for (const area of shindo[intensity]) {
@@ -211,6 +246,12 @@ module.exports = {
         try {
             await page.evaluate((shindoGeoJson) => {
                 const shindoStyle = {
+                    "x": new ol.style.Style({
+                        image: new ol.style.Icon({
+                            scale: 0.075,
+                            src: '../data/images/epicenter.png'
+                        })
+                    }),
                     "1": new ol.style.Style({
                         image: new ol.style.Icon({
                             scale: 0.05,
