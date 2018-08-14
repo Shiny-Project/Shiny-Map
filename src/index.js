@@ -2,7 +2,7 @@ import 'ol/ol.css';
 
 const defaultStyle = new ol.style.Style({
     fill: new ol.style.Fill({
-        color: '#444444'
+        color: '#F5F5F5'
     }),
     stroke: new ol.style.Stroke({
         color: '#aaa',
@@ -20,6 +20,21 @@ const JapanMapVectorSource = new ol.source.Vector({
     format: new ol.format.GeoJSON(),
 });
 
+const NorthKoreaVectorSource = new ol.source.Vector({
+    url: '../data/gadm36_PRK_0.json',
+    format: new ol.format.GeoJSON(),
+});
+
+const SouthKoreaVectorSource = new ol.source.Vector({
+    url: '../data/gadm36_KOR_0.json',
+    format: new ol.format.GeoJSON(),
+});
+
+const TaiwanVectorSource = new ol.source.Vector({
+    url: '../data/gadm36_TWN_0.json',
+    format: new ol.format.GeoJSON(),
+});
+
 const map = new ol.Map({
     target: 'map',
     layers: [
@@ -29,6 +44,18 @@ const map = new ol.Map({
         }),
         new ol.layer.Vector({
             source: JapanMapVectorSource,
+            style: defaultStyle
+        }),
+        new ol.layer.Vector({
+            source: NorthKoreaVectorSource,
+            style: defaultStyle
+        }),
+        new ol.layer.Vector({
+            source: SouthKoreaVectorSource,
+            style: defaultStyle
+        }),
+        new ol.layer.Vector({
+            source: TaiwanVectorSource,
             style: defaultStyle
         }),
     ],
