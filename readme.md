@@ -8,6 +8,8 @@
 
 ## API
 
+高亮城市 
+
 `GET /Map/highlight`
 
 对中国大陆的城市进行高亮标识。
@@ -38,3 +40,58 @@
 **示例**
 
 `GET /Map/highlight?center=浙江省&cities=["杭州市", "宁波市"]`
+
+------
+
+震度速报
+
+`POST /Map/shindo_early_report`
+
+
+**参数**
+
+| 参数名 | 参数类型 | 参数说明 |
+| ----  | ----     | --------|
+| shindo | object | 震度信息 |
+
+对 `shindo` 参数详细定义如下：
+
+```JavaScript
+const shindo = {
+    "1": ["震度1的地区"],
+    "2": ["震度2的地区"],
+    "3": ["震度3的地区"],
+    "4": ["震度4的地区"],
+    "5-": ["震度5-的地区"],
+    "5+": ["震度5+的地区"],
+    "6-": ["震度6-的地区"],
+    "6+": ["震度6+的地区"],
+    "7": ["震度7的地区"],
+}
+```
+
+其中地区名按照 JMA 震度速报[规范](https://www.data.jma.go.jp/svd/eqev/data/joho/shindo-name.html)规定的地域名填写。
+
+* 数字使用全角数字。例如：`東京都２３区`。
+
+----
+
+各地区震度信息
+
+`POST /Map/shindo_report`
+
+**参数**
+
+| 参数名 | 参数类型 | 参数说明 |
+| ----  | ----     | --------|
+| shindo | object | 震度信息 |
+
+定义同上
+
+其中地区名按照 JMA 各地区震度信息规范规定的地域名填写。
+
+相关规范请参考：
+
+[気象庁防災情報XMLフォーマット　技術資料](http://xml.kishou.go.jp/tec_material.html)
+
+地震火山関連コード表.xls -> Sheet 24 (AreaForecastLocalE ・ AreaInformationCity ・ PointSeismicIntensity コード表)

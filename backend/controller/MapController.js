@@ -10,6 +10,8 @@ class MapController {
      * @param {*} response 
      */
     async highlight(request, response) {
+        const provinceData = require('../definition/china_provinces');
+
         if (!global.isBrowserLoaded) {
             return response.status(500).json(APIResponse.error('try_again_later', '人家还没准备好'));
         }
@@ -31,8 +33,6 @@ class MapController {
             return response.status(400).json(APIResponse.error('missing_parameters', '缺少 center 参数'));
         }
 
-        const provinceData = require('../definition/china_provinces');
-
         if (!Object.keys(provinceData).includes(center)) {
             return response.status(400).json(APIResponse.error('missing_parameters', '不支持的省份'));
         }
@@ -41,63 +41,62 @@ class MapController {
             return response.status(451).json(APIResponse.error('missing_parameters', '不支持的省份'));
         }
 
-        const page = global.page;
+        const MapService = require('../service/MapService');
 
-        try {
-            await page.evaluate((needHighlight, provinceData, center) => {
-                map.getView().setCenter(ol.proj.fromLonLat([provinceData[center].longitude, provinceData[center].latitude]));
-                map.getView().setZoom(provinceData[center].zoom);
-                map.getLayers().getArray()[0].getSource().forEachFeature(feature => {
-                    if (needHighlight.includes(feature.getProperties()['NL_NAME_2'])) {
-                        feature.setStyle(new ol.style.Style({
-                            fill: new ol.style.Fill({
-                                color: 'red'
-                            }),
-                            stroke: new ol.style.Stroke({
-                                color: '#aaa',
-                                width: 2
-                            }),
-                        }))
-                    }
-                });
-            }, needHighlight, provinceData, center)
-        } catch (e) {
-            console.log('Navigation failed: ' + e.message);
-        }
-
-        await page.screenshot({
-            path: "test.png"
-        });
-
-        await page.evaluate(() => {
-            // Clean
-            map.getLayers().getArray()[0].getSource().forEachFeature(feature => {
-                feature.setStyle(new ol.style.Style({
-                    fill: new ol.style.Fill({
-                        color: '#444444'
-                    }),
-                    stroke: new ol.style.Stroke({
-                        color: '#aaa',
-                        width: 1
-                    }),
-                }))
-            });
-        })
+        const path = await MapService.highlight(needHighlight, center);
 
         response.json(APIResponse.success({
-            status: "success"
+            status: "success",
+            path
+        }));
+    }
+    /**
+     * 震度速报
+     * @param {*} request 
+     * @param {*} response 
+     */
+    async shindoEarlyReport(request, response) {
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error('try_again_later', '人家还没准备好'));
+        }
+
+        const shindo = request.body.shindo;
+        let shindoData;
+        try {
+            shindoData = JSON.parse(shindo);
+        } catch (e) {
+            return response.status(400).json(APIResponse.error('bad_json', '无法解析 JSON'));
+        }
+        
+        const MapService = require('../service/MapService');
+        const path = await MapService.shindoEarlyReport(shindoData);
+        response.json(APIResponse.success({
+            path
+        }));
+    }
+    /**
+     * 各地区震度信息
+     * @param {*} request 
+     * @param {*} response 
+     */
+    async shindoReport(request, response) {
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error('try_again_later', '人家还没准备好'));
+        }
+        const shindo = request.body.shindo;
+        let shindoData;
+        try {
+            shindoData = JSON.parse(shindo);
+        } catch (e) {
+            return response.status(400).json(APIResponse.error('bad_json', '无法解析 JSON'));
+        }
+        
+        const MapService = require('../service/MapService');
+        const path = await MapService.shindoReport(shindoData);
+        response.json(APIResponse.success({
+            path
         }));
     }
 }
 
 module.exports = new MapController();
-
-const result = {};
-map.getLayers().getArray()[1].getSource().forEachFeature(feature => {
-    if (feature.getProperties()['NL_NAME_2']) {
-        result[feature.getProperties()['NL_NAME_2']] = {
-            parent: feature.getProperties()['NL_NAME_1'],
-            coordinates: ol.extent.getCenter(ol.proj.transformExtent(feature.getGeometry().getExtent(), 'EPSG:3857', 'EPSG:4326'))
-        }
-    }
-});

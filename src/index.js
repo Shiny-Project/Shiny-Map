@@ -1,5 +1,4 @@
 import 'ol/ol.css';
-import utils from './utils';
 
 const defaultStyle = new ol.style.Style({
     fill: new ol.style.Fill({
@@ -31,10 +30,10 @@ const map = new ol.Map({
         new ol.layer.Vector({
             source: JapanMapVectorSource,
             style: defaultStyle
-        })
+        }),
     ],
     view: new ol.View({
-        center: ol.proj.fromLonLat([119.7889, 29.1416]),
+        center: ol.proj.fromLonLat([140.412029876442, 37.3914691547508]), // initial value
         zoom: 8
     }),
     controls: [],
