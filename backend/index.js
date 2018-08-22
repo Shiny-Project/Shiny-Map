@@ -34,8 +34,6 @@ puppeteer.launch({
     console.log('Browser Loaded.');
 })
 
-app.get('/', (req, res) => res.send('Hello World!'));
-
 // 静态文件服务目录
 app.use('/data', express.static(path.join(__dirname, '../data')));
 app.use('/template', express.static(path.join(__dirname, '../dist')));

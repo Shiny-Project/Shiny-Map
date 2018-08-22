@@ -66,7 +66,6 @@ class MapController {
             return response.status(400).json(APIResponse.error('bad_json', '无法解析 JSON'));
         }
         
-        
         const MapService = require('../service/MapService');
         const path = await MapService.shindoEarlyReport(shindoData);
         response.json(APIResponse.success({
