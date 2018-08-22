@@ -99,3 +99,14 @@ const shindo = {
 [気象庁防災情報XMLフォーマット　技術資料](http://xml.kishou.go.jp/tec_material.html)
 
 地震火山関連コード表.xls -> Sheet 24 (AreaForecastLocalE ・ AreaInformationCity ・ PointSeismicIntensity コード表)
+
+
+## Special Thanks
+
+我们感谢 @9SQ 开源的震度图生产样例及坐标数据。（ https://github.com/9SQ/seismic-intensity-map ）
+
+We would like to give a special thank to seismic intensity map demo and geographic coordinates which is open sourced by @9SQ.
+
+我们同样需要感谢 Gehirn 和他们旗下的社交网络账号 @UN_NERV 为我们提供了参考和灵感。
+
+Thanks for Gehirn Inc., and their SNS account @UN_NERV who provide much references and inspiration for us.
