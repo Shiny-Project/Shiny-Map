@@ -203,6 +203,19 @@ module.exports = {
             "features": []
         };
 
+        // 震中
+
+        shindoGeoJson.features.push({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": epicenter
+            },
+            "properties": {
+                "intensity": 'x'
+            }
+        });
+
         // 震度
 
         for (const intensity of ["1", "2", "3", "4", "5-", "5+", "6-", "6+", "7"]) {
@@ -223,19 +236,6 @@ module.exports = {
                 }
             }
         }
-
-        // 震中
-
-        shindoGeoJson.features.push({
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": epicenter
-            },
-            "properties": {
-                "intensity": 'x'
-            }
-        })
 
         try {
             await page.evaluate((shindoGeoJson) => {
