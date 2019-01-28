@@ -35,15 +35,32 @@ const TaiwanVectorSource = new ol.source.Vector({
     format: new ol.format.GeoJSON(),
 });
 
+const JMAEQVectorSource = new ol.source.Vector({
+    url: '../data/jma_eq_area.json',
+    format: new ol.format.GeoJSON(),
+});
+
+// -----
+
+window.JapanDetailedMapLayer = new ol.layer.Vector({
+    source: JapanMapVectorSource,
+    style: defaultStyle
+});
+
+window.JapanDetailedMapLayer.set('name', 'japan_detailed_map');
+
+window.JapanSimpleMapLayer = new ol.layer.Vector({
+    source: JMAEQVectorSource,
+    style: defaultStyle
+});
+
+window.JapanSimpleMapLayer.set('name', 'japan_simple_map');
+
 const map = new ol.Map({
     target: 'map',
     layers: [
         new ol.layer.Vector({
             source: ChinaMapVectorSource,
-            style: defaultStyle
-        }),
-        new ol.layer.Vector({
-            source: JapanMapVectorSource,
             style: defaultStyle
         }),
         new ol.layer.Vector({
@@ -56,8 +73,8 @@ const map = new ol.Map({
         }),
         new ol.layer.Vector({
             source: TaiwanVectorSource,
-            style: defaultStyle
-        }),
+            style: defaultStyle,
+        })
     ],
     view: new ol.View({
         center: ol.proj.fromLonLat([140.412029876442, 37.3914691547508]), // initial value

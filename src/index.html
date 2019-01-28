@@ -40,7 +40,7 @@
       padding: .5rem 1rem;
     }
 
-    #info-title span{
+    #info-title span {
       font-size: xx-large;
       font-family: 'Noto Sans CJK SC';
     }
@@ -51,7 +51,7 @@
   <div id="info">
     <h2 id="info-title">
       <span>各地区震度信息</span>
-    </div>
+  </div>
   </div>
   <div id="map"></div>
   <footer id="footer">
@@ -66,6 +66,15 @@
     }
     window.setTitle = (text) => {
       document.getElementById('info-title').getElementsByTagName('span')[0].innerText = text;
+    }
+    window.getLayerByName = (name) => {
+      let result;
+      map.getLayers().forEach(layer => {
+        if (layer.get('name') === name) {
+          result = layer;
+        }
+      });
+      return result;
     }
   </script>
 </body>
