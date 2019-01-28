@@ -10,7 +10,10 @@ module.exports = {
     highlight: async (needHighlight, center) => {
         const page = global.page;
         const provinceData = require('../definition/china_provinces');
-
+        while (global.isBrowserBusy) {
+            await utils.sleep(200);
+        }
+        global.isBrowserBusy = true;
         try {
             await page.evaluate((needHighlight, provinceData, center) => {
                 map.getView().setCenter(ol.proj.fromLonLat([provinceData[center].longitude, provinceData[center].latitude]));
@@ -54,7 +57,7 @@ module.exports = {
                 }))
             });
         })
-
+        global.isBrowserBusy = false;
         return path.resolve(process.cwd(), outputPath);
     },
     /**
@@ -88,7 +91,10 @@ module.exports = {
                 }
             }
         }
-
+        while (global.isBrowserBusy) {
+            await utils.sleep(200);
+        }
+        global.isBrowserBusy = true;
         try {
             await page.evaluate((shindoGeoJson) => {
                 const shindoStyle = {
@@ -192,7 +198,7 @@ module.exports = {
                 }
             });
         });
-
+        global.isBrowserBusy = false;
         return path.resolve(process.cwd(), outputPath);
     },
     shindoReport: async (epicenter, shindo) => {
@@ -236,7 +242,10 @@ module.exports = {
                 }
             }
         }
-
+        while (global.isBrowserBusy) {
+            await utils.sleep(200);
+        }
+        global.isBrowserBusy = true;
         try {
             await page.evaluate((shindoGeoJson) => {
                 const shindoStyle = {
@@ -340,6 +349,8 @@ module.exports = {
                 }
             });
         });
+
+        global.isBrowserBusy = false;
 
         return path.resolve(process.cwd(), outputPath);
     }

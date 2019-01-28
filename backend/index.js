@@ -11,6 +11,8 @@ app.use(bodyParser.urlencoded({
 
 // Load Browser
 global.isBrowserLoaded = false;
+global.isBrowserBusy = false;
+
 const puppeteer = require('puppeteer');
 puppeteer.launch({
     args: ['--no-sandbox']
