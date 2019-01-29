@@ -35,7 +35,7 @@
 
 未来可能支持更多。
 
-由于地图数据政治不正确，根据《中华人民共和国地图管理条例》相关规定和《中华人民共和国反国家分裂法》的相关精神还有《微博社区公约》第十八条的相关约束，我们无法对西南某些省份提供支持。对于这些省份，返回`HTTP 451`。
+由于地图数据政治不正确，我们无法对西南某些省份提供支持。对于这些省份，返回`HTTP 451`。
 
 **示例**
 
@@ -74,6 +74,9 @@ const shindo = {
 
 * 数字使用全角数字。例如：`東京都２３区`。
 
+**预览**
+![](https://wx3.sinaimg.cn/large/005BvSosly1fzk2epf0jnj31hc0u0dk8.jpg)
+
 ----
 
 各地区震度信息
@@ -99,6 +102,33 @@ const shindo = {
 
 地震火山関連コード表.xls -> Sheet 24 (AreaForecastLocalE ・ AreaInformationCity ・ PointSeismicIntensity コード表)
 
+**预览**
+![](https://wx3.sinaimg.cn/large/005BvSosly1fzk2gsycnoj31hc0u0wkn.jpg)
+
+----
+
+海啸警报
+
+`POST /Map/tsunami_warning`
+
+**参数**
+
+| 参数名 | 参数类型 | 参数说明 |
+| ----  | ----     | --------|
+| warning | object | 警报信息 |
+
+对警报信息详细定义如下
+```JavaScript
+const warning = {
+    "notice": ["京都府"], // 海啸注意报的区域
+    "warning": ["有明・八代海"], // 海啸警报的区域
+    "alert": ["千葉県九十九里・外房"] // 大海啸警报的区域
+}
+```
+其中区域名按照 JMA 规定的海啸警报区域名填写。
+
+**预览**
+![](http://ww1.sinaimg.cn/large/e985a6f7ly1fzne8i260kj21hc0u07bl.jpg)
 
 ## Special Thanks
 

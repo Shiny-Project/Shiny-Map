@@ -99,6 +99,28 @@ class MapController {
             path
         }));
     }
+    /**
+     * 海啸警报
+     * @param {*} request 
+     * @param {*} response 
+     */
+    async tsunamiWarning(request, response) {
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error('try_again_later', '人家还没准备好'));
+        }
+        let warningData;
+        try {
+            warningData = JSON.parse(request.body.warning);
+        } catch (e) {
+            return response.status(400).json(APIResponse.error('bad_json', '无法解析 JSON'));
+        }
+
+        const MapService = require('../service/MapService');
+        const path = await MapService.tsunamiWarning(warningData);
+        response.json(APIResponse.success({
+            path
+        }));
+    }
 }
 
 module.exports = new MapController();

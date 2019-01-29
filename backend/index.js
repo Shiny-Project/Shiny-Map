@@ -43,5 +43,6 @@ app.use('/template', express.static(path.join(__dirname, '../dist')));
 app.use('/map/highlight', MapController.highlight);
 app.use('/map/shindo_early_report', MapController.shindoEarlyReport);
 app.use('/map/shindo_report', MapController.shindoReport);
+app.use('/map/tsunami_warning', MapController.tsunamiWarning);
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));
