@@ -131,7 +131,8 @@ const warning = {
 其中区域名按照 JMA 规定的海啸警报区域名填写。
 
 **预览**
-![](http://ww1.sinaimg.cn/large/e985a6f7ly1fzne8i260kj21hc0u07bl.jpg)
+![](http://ww1.sinaimg.cn/large/e985a6f7ly1fzooy6wxmcj21hc0u045v.jpg)
+![](http://ww1.sinaimg.cn/large/e985a6f7ly1fzopalxk2uj21hc0u0wlv.jpg)
 
 ## Special Thanks
 

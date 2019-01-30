@@ -31,18 +31,58 @@
     }
 
     #info {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      color: white;
+      z-index: 998;
+    }
+
+    #info-title {
       position: fixed;
       top: 2rem;
       left: 2rem;
       background-color: rgba(0, 0, 0, 0.4);
-      color: white;
-      z-index: 999;
       padding: .5rem 1rem;
     }
 
     #info-title span {
       font-size: xx-large;
       font-family: 'Noto Sans CJK SC';
+    }
+
+    #tsunami-legend {
+      opacity: 0;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: .5rem 1rem;
+      font-family: 'Noto Sans CJK SC';
+    }
+
+    #tsunami-legend>div {
+      display: flex;
+      align-items: center;
+    }
+
+    .tsunami-legend-icon {
+      display: inline-block;
+      margin-right: 10px;
+      height: 3px;
+      width: 40px;
+    }
+
+    .tsunami-legend-icon-alert {
+      background-color: #c800ff;
+    }
+
+    .tsunami-legend-icon-warning {
+      background-color: #ff2800;
+    }
+
+    .tsunami-legend-icon-notice {
+      background-color: #faf500;
     }
 
     #fullscreen-tip {
@@ -53,6 +93,7 @@
       align-items: center;
       justify-content: center;
       z-index: 999;
+      opacity: 0;
     }
 
     #fullscreen-tip span {
@@ -70,9 +111,20 @@
 
 <body>
   <div id="info">
-    <h2 id="info-title">
+    <div id="info-title">
       <span>{Title}</span>
-  </div>
+    </div>
+    <div id="tsunami-legend">
+        <div>
+            <i class="tsunami-legend-icon tsunami-legend-icon-alert"></i> <span>大海啸警报</span>
+        </div>
+        <div>
+            <i class="tsunami-legend-icon tsunami-legend-icon-warning"></i> <span>海啸警报</span>
+        </div>
+        <div>
+            <i class="tsunami-legend-icon tsunami-legend-icon-notice"></i> <span>海啸注意报</span>
+        </div>
+    </div>
   </div>
   <div id="fullscreen-tip">
     <span>{Fullscreen Tip}</span>
@@ -92,10 +144,10 @@
       document.getElementById('info-title').getElementsByTagName('span')[0].innerText = text;
     }
     window.showTitle = () => {
-      document.getElementById('info').style.opacity = '1';
+      document.getElementById('info-title').style.opacity = '1';
     }
     window.hideTitle = () => {
-      document.getElementById('info').style.opacity = '0';
+      document.getElementById('info-title').style.opacity = '0';
     }
     window.setFullscreenTip = (text) => {
       document.getElementById('fullscreen-tip').getElementsByTagName('span')[0].innerText = text;
@@ -105,6 +157,12 @@
     }
     window.hideFullscreenTip = () => {
       document.getElementById('fullscreen-tip').style.opacity = '0';
+    }
+    window.showTsunamiLegend = () => {
+      document.getElementById('tsunami-legend').style.opacity = '1';
+    }
+    window.hideTsunamiLegend = () => {
+      document.getElementById('tsunami-legend').style.opacity = '0';
     }
     window.getLayerByName = (name) => {
       let result;
