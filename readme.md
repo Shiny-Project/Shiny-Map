@@ -115,7 +115,10 @@ const shindo = {
 
 | 参数名 | 参数类型 | 参数说明 |
 | ----  | ----     | --------|
+| type  |  string |  类型     |
 | warning | object | 警报信息 |
+
+类型固定为`warning`（警报发布或更新）或者`cancel`（取消）。值为`cancel`时会忽略`warning`参数的内容。
 
 对警报信息详细定义如下
 ```JavaScript
