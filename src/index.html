@@ -44,14 +44,38 @@
       font-size: xx-large;
       font-family: 'Noto Sans CJK SC';
     }
+
+    #fullscreen-tip {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    #fullscreen-tip span {
+      font-family: 'Noto Sans CJK SC';
+      width: auto;
+      min-height: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: white;
+      z-index: 999;
+      padding: .8rem 2rem;
+      font-size: 5rem;
+    }
   </style>
 </head>
 
 <body>
   <div id="info">
     <h2 id="info-title">
-      <span>各地区震度信息</span>
+      <span>{Title}</span>
   </div>
+  </div>
+  <div id="fullscreen-tip">
+    <span>{Fullscreen Tip}</span>
   </div>
   <div id="map"></div>
   <footer id="footer">
@@ -66,6 +90,21 @@
     }
     window.setTitle = (text) => {
       document.getElementById('info-title').getElementsByTagName('span')[0].innerText = text;
+    }
+    window.showTitle = () => {
+      document.getElementById('info').style.opacity = '1';
+    }
+    window.hideTitle = () => {
+      document.getElementById('info').style.opacity = '0';
+    }
+    window.setFullscreenTip = (text) => {
+      document.getElementById('fullscreen-tip').getElementsByTagName('span')[0].innerText = text;
+    }
+    window.showFullscreenTip = () => {
+      document.getElementById('fullscreen-tip').style.opacity = '1';
+    }
+    window.hideFullscreenTip = () => {
+      document.getElementById('fullscreen-tip').style.opacity = '0';
     }
     window.getLayerByName = (name) => {
       let result;
