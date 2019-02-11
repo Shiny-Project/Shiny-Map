@@ -84,3 +84,10 @@ const map = new ol.Map({
 });
 
 window.map = map;
+
+map.addLayer(JapanSimpleMapLayer);
+map.addLayer(JapanDetailedMapLayer);
+map.once('postrender', () => {
+    map.removeLayer(JapanSimpleMapLayer);
+    map.removeLayer(JapanDetailedMapLayer);
+});
