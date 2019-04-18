@@ -448,7 +448,7 @@ module.exports = {
         try {
             await page.evaluate(() => {
                 showTsunamiLegend();
-                setFullscreenTip('海啸警报解除');
+                setFullscreenTip('当前无海啸警报发表');
                 showFullscreenTip();
                 map.addLayer(JapanSimpleMapLayer);
                 hideTitle();
