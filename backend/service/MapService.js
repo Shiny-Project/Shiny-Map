@@ -460,7 +460,7 @@ module.exports = {
         }
 
         const outputPath = `./output/tsunami_warning_cancel_${utils.getTimestamp()}.png`;
-
+        
         await page.screenshot({
             path: outputPath
         });
