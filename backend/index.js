@@ -17,6 +17,7 @@ const puppeteer = require('puppeteer');
 puppeteer.launch({
     args: ['--no-sandbox']
 }).then(async browser => {
+    // Earthquake Page
     const page = await browser.newPage();
     page.setViewport({
         width: 1920,
@@ -30,9 +31,24 @@ puppeteer.launch({
         waitUntil: 'networkidle0'
     });
 
+    // Tsunami Page
+    const tsunamiPage = await browser.newPage();
+    tsunamiPage.setViewport({
+        width: 1920,
+        height: 1080
+    });
+    tsunamiPage.on('console', msg => {
+        for (let i = 0; i < msg.args().length; ++i)
+          console.log(`${i}: ${msg.args()[i]}`);
+      });
+    await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
+        waitUntil: 'networkidle0'
+    });
+
     global.isBrowserLoaded = true;
     global.browser = browser;
     global.page = page;
+    global.tsunamiPage = tsunamiPage;
     console.log('Browser Loaded.');
 })
 
