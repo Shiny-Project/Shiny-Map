@@ -14,13 +14,13 @@
   "dependencies": {
     "base-64": "^0.1.0",
     "base64-utf8": "^0.1.8",
-    "body-parser": "^1.18.3",
-    "express": "^4.16.3",
-    "ol": "^5.1.3",
-    "puppeteer": "^1.6.2"
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "ol": "^5.3.3",
+    "puppeteer": "^1.19.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "parcel-bundler": "^1.11.0"
+    "parcel-bundler": "^1.12.3"
   }
 }
