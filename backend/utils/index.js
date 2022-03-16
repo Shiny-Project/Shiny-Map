@@ -9,7 +9,7 @@ class Utils {
             time.getMonth() + 1
         }-${time.getDate()}-${time.getHours()}${time.getMinutes()}${time.getSeconds()}${time.getMilliseconds()}`;
     }
-    static sleep() {
+    static sleep(delay) {
         return new Promise((resolve) => setTimeout(resolve, delay));
     }
     static lockBrowser() {
