@@ -37,7 +37,6 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Load Browser
 global.isBrowserLoaded = false;
-global.isBrowserBusy = false;
 
 const puppeteer = require("puppeteer");
 puppeteer

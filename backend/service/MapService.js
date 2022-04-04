@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const Sentry = require("@sentry/node");
+const Lock = require("../utils/lock");
 const utils = require("../utils");
 
 module.exports = {
@@ -11,8 +12,8 @@ module.exports = {
      * @return {Promise<string>} 图片路径
      */
     highlight: async (needHighlight, center) => {
-        await utils.waitBrowserAvailable();
-        utils.lockBrowser();
+        const lock = Lock.get("normal");
+        await lock.acquire();
         const page = global.page;
         const provinceData = require("../definition/china_provinces");
         try {
@@ -53,30 +54,35 @@ module.exports = {
 
         const outputPath = `./output/highlight_${new Date().toISOString()}.png`;
 
-        await page.screenshot({
-            path: outputPath,
-        });
+        try {
+            await page.screenshot({
+                path: outputPath,
+            });
 
-        await page.evaluate(() => {
-            // Clean
-            map.getLayers()
-                .getArray()[0]
-                .getSource()
-                .forEachFeature((feature) => {
-                    feature.setStyle(
-                        new ol.style.Style({
-                            fill: new ol.style.Fill({
-                                color: "#444444",
-                            }),
-                            stroke: new ol.style.Stroke({
-                                color: "#aaa",
-                                width: 1,
-                            }),
-                        })
-                    );
-                });
-        });
-        utils.unlockBrowser();
+            await page.evaluate(() => {
+                // Clean
+                map.getLayers()
+                    .getArray()[0]
+                    .getSource()
+                    .forEachFeature((feature) => {
+                        feature.setStyle(
+                            new ol.style.Style({
+                                fill: new ol.style.Fill({
+                                    color: "#444444",
+                                }),
+                                stroke: new ol.style.Stroke({
+                                    color: "#aaa",
+                                    width: 1,
+                                }),
+                            })
+                        );
+                    });
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Screenshot failed: " + e.message);
+        }
+        lock.release();
         return path.resolve(process.cwd(), outputPath);
     },
     /**
@@ -84,8 +90,8 @@ module.exports = {
      * @param shindo 震度数据
      */
     shindoEarlyReport: async (shindo) => {
-        await utils.waitBrowserAvailable();
-        utils.lockBrowser();
+        const lock = Lock.get("normal");
+        await lock.acquire();
         const page = global.page;
         const areaData = require("../definition/jma_area");
         const shindoGeoJson = {
@@ -204,16 +210,26 @@ module.exports = {
 
         const outputPath = `./output/shindo_early_report_${utils.getTimestamp()}.png`;
 
-        await page.screenshot({
-            path: outputPath,
-        });
+        try {
+            await page.screenshot({
+                path: outputPath,
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Screenshot failed: " + e.message);
+        }
 
-        // Clean
-        await page.evaluate(() => {
-            map.removeLayer(getLayerByName("shindo"));
-            map.removeLayer(JapanSimpleMapLayer);
-        });
-        utils.unlockBrowser();
+        try {
+            // Clean
+            await page.evaluate(() => {
+                map.removeLayer(getLayerByName("shindo"));
+                map.removeLayer(JapanSimpleMapLayer);
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Cleanup failed: " + e.message);
+        }
+        lock.release();
         return path.resolve(process.cwd(), outputPath);
     },
     shindoReport: async (epicenter, shindo) => {
@@ -257,10 +273,8 @@ module.exports = {
                 }
             }
         }
-        while (global.isBrowserBusy) {
-            await utils.sleep(200);
-        }
-        global.isBrowserBusy = true;
+        const lock = Lock.get("normal");
+        await lock.acquire();
         try {
             await page.evaluate((shindoGeoJson) => {
                 map.addLayer(JapanDetailedMapLayer);
@@ -354,17 +368,27 @@ module.exports = {
 
         const outputPath = `./output/shindo_report_${utils.getTimestamp()}.png`;
 
-        await page.screenshot({
-            path: outputPath,
-        });
+        try {
+            await page.screenshot({
+                path: outputPath,
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Screenshot failed: " + e.message);
+        }
 
-        // Clean
-        await page.evaluate(() => {
-            map.removeLayer(getLayerByName("shindo"));
-            map.removeLayer(JapanDetailedMapLayer);
-        });
+        try {
+            // Clean
+            await page.evaluate(() => {
+                map.removeLayer(getLayerByName("shindo"));
+                map.removeLayer(JapanDetailedMapLayer);
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Cleanup failed: " + e.message);
+        }
 
-        global.isBrowserBusy = false;
+        lock.release();
 
         return path.resolve(process.cwd(), outputPath);
     },
@@ -385,10 +409,8 @@ module.exports = {
         areaData.features = areaData.features.filter((f) => {
             return areaNames.includes(f.properties.name);
         });
-        while (global.isBrowserBusy) {
-            await utils.sleep(200);
-        }
-        global.isBrowserBusy = true;
+        const lock = Lock.get("tsunami");
+        await lock.acquire();
         try {
             await page.evaluate(
                 (areaLevelMap, areaData) => {
@@ -446,27 +468,35 @@ module.exports = {
 
         const outputPath = `./output/tsunami_warning_${utils.getTimestamp()}.png`;
 
-        await page.screenshot({
-            path: outputPath,
-        });
+        try {
+            await page.screenshot({
+                path: outputPath,
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Screenshot failed: " + e.message);
+        }
 
-        // Clean
-        await page.evaluate(() => {
-            hideTsunamiLegend();
-            map.removeLayer(getLayerByName("tsunami_warning"));
-            map.removeLayer(JapanSimpleMapLayer);
-        });
+        try {
+            // Clean
+            await page.evaluate(() => {
+                hideTsunamiLegend();
+                map.removeLayer(getLayerByName("tsunami_warning"));
+                map.removeLayer(JapanSimpleMapLayer);
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Cleanup failed: " + e.message);
+        }
 
-        global.isBrowserBusy = false;
+        lock.release();
 
         return path.resolve(process.cwd(), outputPath);
     },
     tsunamiWarningCancel: async () => {
         const page = global.tsunamiPage;
-        while (global.isBrowserBusy) {
-            await utils.sleep(200);
-        }
-        global.isBrowserBusy = true;
+        const lock = Lock.get("tsunami");
+        await lock.acquire();
 
         try {
             await page.evaluate(() => {
@@ -486,19 +516,29 @@ module.exports = {
 
         const outputPath = `./output/tsunami_warning_cancel_${utils.getTimestamp()}.png`;
 
-        await page.screenshot({
-            path: outputPath,
-        });
+        try {
+            await page.screenshot({
+                path: outputPath,
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Screenshot failed: " + e.message);
+        }
 
-        // Clean
-        await page.evaluate(() => {
-            hideTsunamiLegend();
-            showTitle();
-            hideFullscreenTip();
-            map.removeLayer(JapanSimpleMapLayer);
-        });
+        try {
+            // Clean
+            await page.evaluate(() => {
+                hideTsunamiLegend();
+                showTitle();
+                hideFullscreenTip();
+                map.removeLayer(JapanSimpleMapLayer);
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+            console.log("Cleanup failed: " + e.message);
+        }
 
-        global.isBrowserBusy = false;
+        lock.release();
 
         return path.resolve(process.cwd(), outputPath);
     },

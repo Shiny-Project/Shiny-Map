@@ -12,17 +12,6 @@ class Utils {
     static sleep(delay) {
         return new Promise((resolve) => setTimeout(resolve, delay));
     }
-    static lockBrowser() {
-        global.isBrowserBusy = true;
-    }
-    static unlockBrowser() {
-        global.isBrowserBusy = false;
-    }
-    static async waitBrowserAvailable() {
-        while (global.isBrowserBusy) {
-            await Utils.sleep(200);
-        }
-    }
 }
 
 module.exports = Utils;
