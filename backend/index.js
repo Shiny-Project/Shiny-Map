@@ -41,7 +41,16 @@ global.isBrowserLoaded = false;
 const puppeteer = require("puppeteer");
 puppeteer
     .launch({
-        args: ["--no-sandbox"],
+        args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--ignore-certificate-errors",
+            "--no-first-run",
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
+            "--disable-accelerated-2d-canvas",
+        ],
+        devtools: false,
     })
     .then(async (browser) => {
         // Earthquake Page
@@ -51,8 +60,7 @@ puppeteer
             height: 1080,
         });
         page.on("console", (msg) => {
-            for (let i = 0; i < msg.args().length; ++i)
-                console.log(`${i}: ${msg.args()[i]}`);
+            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
         });
         await page.goto(`http://localhost:3000/template/index.html`, {
             waitUntil: "networkidle0",
@@ -65,8 +73,7 @@ puppeteer
             height: 1080,
         });
         tsunamiPage.on("console", (msg) => {
-            for (let i = 0; i < msg.args().length; ++i)
-                console.log(`${i}: ${msg.args()[i]}`);
+            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
         });
         await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
             waitUntil: "networkidle0",
