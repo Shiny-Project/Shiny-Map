@@ -1,28 +1,28 @@
 {
-  "name": "shiny-map",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel ./src/index.html",
-    "build": "parcel build --public-url ./ ./src/index.html",
-    "serve": "node ./backend/index.js"
-  },
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "@sentry/node": "^6.19.7",
-    "@sentry/tracing": "^6.19.7",
-    "body-parser": "^1.20.0",
-    "dotenv": "^16.0.0",
-    "express": "^4.18.1",
-    "ol": "^5.3.3",
-    "puppeteer": "^13.1.1"
-  },
-  "devDependencies": {
-    "@types/openlayers": "^4.6.18",
-    "babel-core": "^6.26.3",
-    "parcel-bundler": "^1.12.4"
-  }
+    "name": "shiny-map",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "parcel ./src/index.html",
+        "build": "parcel build --public-url ./ ./src/index.html",
+        "serve": "node ./backend/index.js"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@sentry/node": "^6.19.7",
+        "@sentry/tracing": "^6.19.7",
+        "body-parser": "^1.20.0",
+        "dotenv": "^16.0.0",
+        "express": "^4.18.1",
+        "ol": "^5.3.3",
+        "puppeteer": "^13.1.1"
+    },
+    "devDependencies": {
+        "@types/openlayers": "^4.6.18",
+        "babel-core": "^6.26.3",
+        "parcel-bundler": "^1.12.4",
+        "parcel-resolver-ignore": "^2.1.3"
+    }
 }

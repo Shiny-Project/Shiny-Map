@@ -5,3 +5,4 @@ test.png
 /output/
 /.idea
 .env
+.parcel-cache/
