@@ -92,3 +92,19 @@ map.once("postrender", () => {
     map.removeLayer(JapanDetailedMapLayer);
 });
 
+import * as Sentry from "@sentry/browser";
+import { BrowserTracing } from "@sentry/tracing";
+
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+
+    // Alternatively, use `process.env.npm_package_version` for a dynamic release version
+    // if your build tool supports it.
+    release: "1.0.0",
+    integrations: [new BrowserTracing()],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+});
