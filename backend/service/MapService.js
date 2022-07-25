@@ -203,6 +203,9 @@ module.exports = {
                 );
                 setTitle(`震度速报`);
             }, shindoGeoJson);
+            await page.waitForNetworkIdle({
+                idleTime: 140,
+            });
         } catch (e) {
             Sentry.captureException(e);
             console.log("Navigation failed: " + e.message);
@@ -361,6 +364,9 @@ module.exports = {
                 );
                 setTitle(`各地区震度信息`);
             }, shindoGeoJson);
+            // await page.waitForNetworkIdle({
+            //     idleTime: 140,
+            // });
         } catch (e) {
             Sentry.captureException(e);
             console.log("Navigation failed: " + e.message);
@@ -461,6 +467,9 @@ module.exports = {
                 areaLevelMap,
                 areaData
             );
+            await page.waitForNetworkIdle({
+                idleTime: 140,
+            });
         } catch (e) {
             Sentry.captureException(e);
             console.log("Navigation failed: " + e.message);
