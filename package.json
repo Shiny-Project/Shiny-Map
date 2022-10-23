@@ -4,10 +4,15 @@
     "description": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "parcel ./src/index.html",
-        "build": "parcel build --public-url ./ ./src/index.html",
+        "start": "parcel --public-url ./",
+        "prebuild": "node ./build/clean.js",
+        "build": "parcel build --public-url ./",
         "serve": "node ./backend/index.js"
     },
+    "source": [
+        "src/index.html",
+        "src/typhoon.html"
+    ],
     "author": "",
     "license": "MIT",
     "dependencies": {

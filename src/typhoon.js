@@ -29,7 +29,7 @@ const map = new ol.Map({
         center: ol.proj.fromLonLat([135, 30]), // initial value
         zoom: 5,
     }),
-    //controls: [],
+    controls: [],
 });
 
 window.map = map;
@@ -41,7 +41,7 @@ const typhoonPoints = [
         // 1: previous, 2: current, 3: estimation
         type: 1,
         coordinate: [127.5, 19.4],
-        // 1: TS, 2: STS, 3: TY, 4: 強いTY, 5: 非常に強いTY, 6: 猛烈なTY
+        // 1: TS, 2: STS, 3: 強いTY, 4: 非常に強いTY, 5: 猛烈なTY
         intensity: 1,
     },
     {
@@ -102,12 +102,11 @@ map.addLayer(TyphoonInfoLayer);
 // 绘制坐标点
 
 const IntensityColorMap = {
-    1: "#65B500",
-    2: "#FFE600",
-    3: "#EDAB00",
-    4: "#ED5500",
-    5: "#CC00ED",
-    6: "#CC00ED",
+    1: "#65B516",
+    2: "#FFE616",
+    3: "#EDAB16",
+    4: "#CC16ED",
+    5: "#6F1681",
 };
 
 /** @type {ol.StyleFunction} */
