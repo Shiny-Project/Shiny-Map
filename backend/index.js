@@ -65,6 +65,7 @@ puppeteer
         await page.goto(`http://localhost:3000/template/index.html`, {
             waitUntil: "networkidle0",
         });
+        console.log("Earthquake page ready.");
 
         // Tsunami Page
         const tsunamiPage = await browser.newPage();
@@ -78,11 +79,27 @@ puppeteer
         await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
             waitUntil: "networkidle0",
         });
+        console.log("Tsunami page ready.");
+
+        // Typhoon Page
+        const typhoonPage = await browser.newPage();
+        typhoonPage.setViewport({
+            width: 1920,
+            height: 1080,
+        });
+        typhoonPage.on("console", (msg) => {
+            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
+        });
+        await typhoonPage.goto(`http://localhost:3000/template/typhoon.html`, {
+            waitUntil: "networkidle0",
+        });
+        console.log("Typhoon page ready.");
 
         global.isBrowserLoaded = true;
         global.browser = browser;
         global.page = page;
         global.tsunamiPage = tsunamiPage;
+        global.typhoonPage = typhoonPage;
         console.log("Browser Loaded.");
     });
 
@@ -94,6 +111,7 @@ app.use("/map/highlight", MapController.highlight);
 app.use("/map/shindo_early_report", MapController.shindoEarlyReport);
 app.use("/map/shindo_report", MapController.shindoReport);
 app.use("/map/tsunami_warning", MapController.tsunamiWarning);
+app.use("/map/typhoon_info", MapController.typhoonInfo);
 
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
