@@ -59,7 +59,7 @@ window.map = map;
 //                 type: 1,
 //                 radius: 200000,
 //                 // 1: 全域, 2: 北, 3: 东北, 4: 东, 5: 东南, 6: 南, 7: 西南, 8: 西, 9: 西北
-//                 // 1 为整圆 2/4/6/8 为半圆 其余为1/4圆
+//                 // 1 为整圆 其余为半圆
 //                 direction: 9,
 //             },
 //             {
@@ -178,13 +178,13 @@ const drawTyphoonInfo = (info) => {
     const CircleDirectionAngleMap = {
         1: [0, Math.PI * 2],
         2: [Math.PI, 0],
-        3: [(Math.PI / 2) * 3, 0],
+        3: [(5 / 4) * Math.PI, (1 / 4) * Math.PI],
         4: [-Math.PI / 2, Math.PI / 2],
-        5: [0, Math.PI / 2],
+        5: [(-1 / 4) * Math.PI, (3 / 4) * Math.PI],
         6: [Math.PI * 2, Math.PI],
-        7: [Math.PI / 2, Math.PI],
+        7: [(1 / 4) * Math.PI, (5 / 4) * Math.PI],
         8: [Math.PI / 2, (Math.PI / 2) * 3],
-        9: [Math.PI, (Math.PI / 2) * 3],
+        9: [(3 / 4) * Math.PI, (-1 / 4) * Math.PI],
     };
 
     const CircleTypeColorMap = {
