@@ -62,9 +62,13 @@ puppeteer
         page.on("console", (msg) => {
             for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
         });
-        await page.goto(`http://localhost:3000/template/index.html`, {
-            waitUntil: "networkidle0",
-        });
+        try {
+            await page.goto(`http://localhost:3000/template/index.html`, {
+                waitUntil: "networkidle0",
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+        }
         console.log("Earthquake page ready.");
 
         // Tsunami Page
@@ -76,9 +80,13 @@ puppeteer
         tsunamiPage.on("console", (msg) => {
             for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
         });
-        await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
-            waitUntil: "networkidle0",
-        });
+        try {
+            await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
+                waitUntil: "networkidle0",
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+        }
         console.log("Tsunami page ready.");
 
         // Typhoon Page
@@ -90,9 +98,13 @@ puppeteer
         typhoonPage.on("console", (msg) => {
             for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
         });
-        await typhoonPage.goto(`http://localhost:3000/template/typhoon.html`, {
-            waitUntil: "networkidle0",
-        });
+        try {
+            await typhoonPage.goto(`http://localhost:3000/template/typhoon.html`, {
+                waitUntil: "networkidle0",
+            });
+        } catch (e) {
+            Sentry.captureException(e);
+        }
         console.log("Typhoon page ready.");
 
         global.isBrowserLoaded = true;
