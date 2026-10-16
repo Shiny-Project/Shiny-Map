@@ -1,0 +1,101 @@
+[
+    {
+        "id": "highlight",
+        "label": "城市高亮",
+        "method": "GET",
+        "endpoint": "/map/highlight",
+        "params": { "center": "浙江省", "cities": ["杭州市", "宁波市"] }
+    },
+    {
+        "id": "shindo-early-report",
+        "label": "震度速报",
+        "method": "POST",
+        "endpoint": "/map/shindo_early_report",
+        "params": {
+            "shindo": {
+                "1": ["神奈川県西部"],
+                "2": ["東京都２３区"],
+                "3": ["千葉県北西部"],
+                "4": ["栃木県南部"],
+                "5-": ["茨城県南部"],
+                "5+": ["茨城県北部"],
+                "6-": ["福島県中通り"],
+                "6+": ["福島県浜通り"],
+                "7": ["宮城県中部"]
+            }
+        }
+    },
+    {
+        "id": "shindo-report",
+        "label": "详细震度与震中",
+        "method": "POST",
+        "endpoint": "/map/shindo_report",
+        "params": {
+            "epicenter": [142.369, 38.322],
+            "shindo": {
+                "1": ["横浜中区"],
+                "2": ["東京新宿区"],
+                "3": ["千葉中央区"],
+                "4": ["宇都宮市"],
+                "5-": ["水戸市"],
+                "5+": ["郡山市"],
+                "6-": ["福島市"],
+                "6+": ["いわき市"],
+                "7": ["仙台青葉区"]
+            }
+        }
+    },
+    {
+        "id": "tsunami-warning",
+        "label": "海啸三级警报",
+        "method": "POST",
+        "endpoint": "/map/tsunami_warning",
+        "params": {
+            "type": "warning",
+            "warning": {
+                "notice": ["伊豆諸島"],
+                "warning": ["茨城県"],
+                "alert": ["千葉県九十九里・外房"]
+            }
+        }
+    },
+    {
+        "id": "tsunami-cancel",
+        "label": "海啸警报取消",
+        "method": "POST",
+        "endpoint": "/map/tsunami_warning",
+        "params": { "type": "cancel" }
+    },
+    {
+        "id": "typhoon-track",
+        "label": "台风历史、当前与预报路径",
+        "method": "POST",
+        "endpoint": "/map/typhoon_info",
+        "params": {
+            "typhoon_info": {
+                "points": [
+                    { "type": 1, "coordinate": [127.5, 19.4], "intensity": 1 },
+                    { "type": 1, "coordinate": [126.5, 19.4], "intensity": 2 },
+                    {
+                        "type": 2,
+                        "coordinate": [126.2, 19.2],
+                        "intensity": 3,
+                        "circles": [
+                            { "type": 1, "radius": 200000, "direction": 1 },
+                            { "type": 2, "radius": 50000, "direction": 9 }
+                        ]
+                    },
+                    { "type": 3, "coordinate": [125.9, 19.0], "intensity": 4 },
+                    { "type": 3, "coordinate": [124.0, 18.7], "intensity": 5 }
+                ]
+            }
+        }
+    },
+    {
+        "id": "typhoon-remark",
+        "label": "台风消散提示",
+        "method": "POST",
+        "endpoint": "/map/typhoon_info",
+        "params": { "typhoon_info": { "remark": "台风已消散" } }
+    }
+]

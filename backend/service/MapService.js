@@ -54,7 +54,7 @@ module.exports = {
             console.log("Navigation failed: " + e.message);
         }
 
-        const outputPath = `./output/highlight_${new Date().toISOString()}.png`;
+        const outputPath = `./output/highlight_${utils.getTimestamp()}.png`;
 
         try {
             await page.screenshot({
