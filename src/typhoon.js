@@ -1,4 +1,5 @@
 import "ol/ol.css";
+import ol from "./openlayers";
 import { createBaseMapLayer, defaultMapStyle as defaultStyle } from "./base-map";
 
 // -----
@@ -102,7 +103,7 @@ const drawTyphoonInfo = (info) => {
         5: "#6F1681",
     };
 
-    /** @type {ol.StyleFunction} */
+    /** @type {import("ol/style/Style.js").StyleFunction} */
     const typhoonPointFeatureStyleFunction = (feature) => {
         const properties = feature.getProperties();
         return new ol.style.Style({
@@ -132,7 +133,7 @@ const drawTyphoonInfo = (info) => {
 
     // 绘制坐标点连线
 
-    /** @type {ol.StyleFunction} */
+    /** @type {import("ol/style/Style.js").StyleFunction} */
     const typhoonLineFeatureStyleFunction = (feature, resolution) => {
         const properties = feature.getProperties();
         return new ol.style.Style({
@@ -181,7 +182,7 @@ const drawTyphoonInfo = (info) => {
     const currentPoint = typhoonPoints.find((p) => p.type === 2);
 
     if (currentPoint) {
-        /** @type {ol.StyleFunction} */
+        /** @type {import("ol/style/Style.js").StyleFunction} */
         const styleFunction = (feature, resolution) => {
             const properties = feature.getProperties();
             const { circle } = properties;
@@ -226,7 +227,7 @@ const drawTyphoonInfo = (info) => {
             return new ol.style.Style({
                 image: new ol.style.Icon({
                     img: canvas,
-                    imgSize: [radius * 2, radius * 2],
+                    size: [radius * 2, radius * 2],
                 }),
                 zIndex: CircleTypeZIndexMap[circle.type],
             });

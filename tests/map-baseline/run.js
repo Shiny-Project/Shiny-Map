@@ -115,7 +115,7 @@ async function run() {
             }
         }
     }
-    for (const entry of ["dist/index.html", "dist/typhoon.html", "src/assets/ol.js"]) {
+    for (const entry of ["dist/index.html", "dist/typhoon.html"]) {
         if (!fs.existsSync(path.join(root, entry))) {
             throw new Error("Missing " + entry + ". Install dependencies and run npm run build.");
         }
@@ -203,10 +203,11 @@ async function run() {
             node: process.version,
             puppeteer: require("puppeteer/package.json").version,
             browser: await browser.version(),
+            openlayers: await global.page.evaluate(() => ol.VERSION),
             viewport: await global.page.viewport(),
         };
         if (reference) {
-            for (const key of ["platform", "arch", "browser", "node", "puppeteer"]) {
+            for (const key of ["platform", "arch", "browser", "node", "puppeteer", "openlayers"]) {
                 if (reference.environment[key] !== report.environment[key]) {
                     report.warnings.push(
                         key + " differs: reference=" + reference.environment[key] +

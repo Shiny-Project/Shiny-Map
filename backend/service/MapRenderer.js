@@ -76,6 +76,30 @@ async function waitForPaint(page, timeout) {
             reject(new Error("Map template did not initialize."));
             return;
         }
+        const signature = () => [
+            map.getView(), map.getView().getRevision(), ...map.getSize(), document.fonts.status,
+            map.getLayers().getRevision(),
+            ...map.getLayers().getArray().flatMap((layer) => [
+                layer, layer.getRevision(), layer.getSource(), layer.getSource()?.getRevision(),
+            ]),
+        ];
+        const paintKey = Symbol.for("ShinyMap.paint");
+        if (!map[paintKey]) {
+            const paint = map[paintKey] = {};
+            // Capture before drawing: a postrender listener may mutate layers
+            // after the frame was painted (including initial layer preloading).
+            map.on("precompose", () => { paint.rendering = signature(); });
+            map.on("postrender", (event) => {
+                paint.signature = paint.rendering;
+                paint.animate = event.frameState.animate;
+            });
+        }
+        const paint = map[paintKey];
+        const isPainted = () => {
+            const current = signature();
+            return paint.signature?.length === current.length &&
+                current.every((value, index) => value === paint.signature[index]);
+        };
         const imageStates = { idle: 0, loading: 1, error: 3 };
         let settled = false;
         const finish = (error) => {
@@ -88,7 +112,7 @@ async function waitForPaint(page, timeout) {
         };
         const completed = (event) => {
             try {
-                let loading = map.getView().getAnimating() || event.frameState.animate;
+                let loading = !isPainted() || map.getView().getAnimating() || event.frameState.animate;
                 for (const layer of map.getLayers().getArray()) {
                     if (!layer.getVisible()) continue;
                     const source = layer.getSource();
@@ -116,10 +140,12 @@ async function waitForPaint(page, timeout) {
         const timer = setTimeout(() => finish(new Error("Map rendering or fonts timed out.")), timeout);
         document.fonts.ready.then(() => {
             if (settled) return;
-            // The bundled global OpenLayers build predates rendercomplete.
+            // Use the synchronous paint event. Waiting for rendercomplete adds
+            // a deferred browser task to every screenshot; verify icons here.
             map.on("postrender", completed);
             try {
-                map.renderSync();
+                if (isPainted()) completed({ frameState: { animate: paint.animate } });
+                else map.renderSync();
             } catch (error) {
                 finish(error);
             }

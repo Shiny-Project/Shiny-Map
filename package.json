@@ -3,9 +3,10 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "test": "node --test ./tests/map-baseline/image-diff.test.js && npm run test:maps",
+        "test": "node --test ./tests/map-baseline/image-diff.test.js ./tests/map-baseline/map-state.test.js && npm run test:maps",
         "test:maps": "npm run build && node --test ./tests/rendering.test.js && node ./tests/map-baseline/run.js",
         "baseline:maps": "npm run build && node ./tests/map-baseline/run.js --update",
+        "benchmark:maps": "npm run build && node ./tests/map-baseline/performance.js",
         "prepare:map-data": "node ./build/prepare-map-data.js",
         "start": "parcel --public-url ./",
         "prebuild": "node ./build/clean.js",
@@ -24,11 +25,10 @@
         "body-parser": "^1.20.0",
         "dotenv": "^16.0.0",
         "express": "^4.18.1",
-        "ol": "^5.3.3",
+        "ol": "10.11.0",
         "puppeteer": "^13.1.1"
     },
     "devDependencies": {
-        "@types/openlayers": "^4.6.18",
         "babel-core": "^6.26.3",
         "parcel": "^2.7.0",
         "parcel-resolver-ignore": "^2.1.3",
