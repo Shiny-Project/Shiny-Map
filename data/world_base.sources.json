@@ -1,0 +1,18 @@
+{
+  "world": {
+    "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/9380cca83db5f9aef52d5e762765100745f84b27/geojson/ne_50m_admin_0_countries.geojson",
+    "sha256": "3e458fc036ad0a66411f2c1e6cac49c5d7bfb81cb1123bc513b22511a2b7fdeb",
+    "scale": "1:50,000,000",
+    "license": "Public domain",
+    "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/"
+  },
+  "regionalInputs": {
+    "gadm36_CHN_2.json": "d6366a7a308a4cf73fdd5824cd6237b83089104d33a98a27a3f88e181d51e183",
+    "gadm36_JPN_2.json": "3cfab2ae4b89ee582dfe88ed980dfc2f46abdf77d27efb3bb90ef59f6211a12a",
+    "gadm36_PRK_0.json": "8936c5d68a253dce793105e896f9bd9a7c66b6460118543d124c1459f0f2e8a6",
+    "gadm36_KOR_0.json": "161799f430b8f641f54a1f321b1e33b61fa7b7c831010d06ed0c8da5b1e04e5f",
+    "gadm36_TWN_0.json": "b5de894a0996ba6c82d08e83a2393c17199ae7479b0bfdd26a171c0b346b5ee0"
+  },
+  "processing": "Replace world regions with unions of their original GADM geometries; no regional simplification.",
+  "outputSha256": "7cacfd6ea06cc77809cbbd731713f4b90fdc9229ee1415a5017e64a0fcde7fe3"
+}

@@ -6,6 +6,7 @@
         "test": "node --test ./tests/map-baseline/image-diff.test.js && npm run test:maps",
         "test:maps": "npm run build && node ./tests/map-baseline/run.js",
         "baseline:maps": "npm run build && node ./tests/map-baseline/run.js --update",
+        "prepare:map-data": "node ./build/prepare-map-data.js",
         "start": "parcel --public-url ./",
         "prebuild": "node ./build/clean.js",
         "build": "parcel build --public-url ./",
@@ -32,6 +33,7 @@
         "babel-core": "^6.26.3",
         "parcel": "^2.7.0",
         "parcel-resolver-ignore": "^2.1.3",
+        "polygon-clipping": "0.15.7",
         "process": "^0.11.10"
     },
     "parcelIgnore": [

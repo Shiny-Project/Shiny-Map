@@ -1,30 +1,11 @@
 import "ol/ol.css";
-
-const defaultStyle = new ol.style.Style({
-    fill: new ol.style.Fill({
-        color: "#F5F5F5",
-    }),
-    stroke: new ol.style.Stroke({
-        color: "#aaa",
-        width: 1,
-    }),
-});
-
-const WorldMapVectorSource = new ol.source.Vector({
-    url: "../data/world_simplified.json",
-    format: new ol.format.GeoJSON(),
-});
+import { createBaseMapLayer, defaultMapStyle as defaultStyle } from "./base-map";
 
 // -----
 
 const map = new ol.Map({
     target: "map",
-    layers: [
-        new ol.layer.Vector({
-            source: WorldMapVectorSource,
-            style: defaultStyle,
-        }),
-    ],
+    layers: [createBaseMapLayer()],
     view: new ol.View({
         center: ol.proj.fromLonLat([135, 30]), // initial value
         zoom: 5,

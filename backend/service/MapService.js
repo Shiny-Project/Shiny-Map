@@ -24,8 +24,7 @@ module.exports = {
                         ol.proj.fromLonLat([provinceData[center].longitude, provinceData[center].latitude])
                     );
                     map.getView().setZoom(provinceData[center].zoom);
-                    map.getLayers()
-                        .getArray()[0]
+                    getLayerByName("china_map")
                         .getSource()
                         .forEachFeature((feature) => {
                             if (needHighlight.includes(feature.getProperties()["NL_NAME_2"])) {
@@ -63,8 +62,7 @@ module.exports = {
 
             await page.evaluate(() => {
                 // Clean
-                map.getLayers()
-                    .getArray()[0]
+                getLayerByName("china_map")
                     .getSource()
                     .forEachFeature((feature) => {
                         feature.setStyle(

@@ -6,6 +6,7 @@ const { setTimeout: sleep } = require("node:timers/promises");
 const puppeteer = require("puppeteer");
 const { compareImages, comparison } = require("./image-diff");
 const { writeReport } = require("./report");
+const { checkMapData, checkRenderedBaseMap } = require("./base-map-check");
 
 const root = path.resolve(__dirname, "../..");
 const referenceDirectory = path.join(__dirname, "references");
@@ -90,6 +91,7 @@ async function run() {
     process.chdir(root);
     // Disable reporting from this local test process. dotenv preserves an existing value.
     process.env.SENTRY_DSN = "";
+    const baseMapRegions = checkMapData(root);
     const fixtureSha256 = sha256(fs.readFileSync(fixturesPath));
     let reference;
     if (!config.update) {
@@ -181,6 +183,7 @@ async function run() {
             await sleep(50);
         }
         for (const page of [global.page, global.tsunamiPage, global.typhoonPage]) {
+            await checkRenderedBaseMap(page, baseMapRegions);
             await page.evaluate(async (timestamp) => {
                 if (!window.map || !window.ol || typeof window.setFooter !== "function") {
                     throw new Error("Map template did not initialize.");
@@ -313,7 +316,8 @@ async function run() {
         process.removeListener("unhandledRejection", handleRejection);
     }
     console.log("Report: " + path.join(directory, "report.html"));
-    console.log(report.passed ? "All 7 map scenarios passed." : "Map baseline FAILED: " + report.failures.join("\n"));
+    console.log(report.passed ? "All " + fixtures.length + " map scenarios passed." :
+        "Map baseline FAILED: " + report.failures.join("\n"));
     process.exitCode = report.passed ? 0 : 1;
 }
 

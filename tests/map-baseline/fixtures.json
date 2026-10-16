@@ -46,6 +46,20 @@
         }
     },
     {
+        "id": "shindo-report-hokkaido",
+        "label": "北海道震度与俄罗斯边界",
+        "method": "POST",
+        "endpoint": "/map/shindo_report",
+        "params": {
+            "epicenter": [143.1, 46.5],
+            "shindo": {
+                "1": ["札幌中央区"],
+                "3": ["根室市"],
+                "5+": ["稚内市"]
+            }
+        }
+    },
+    {
         "id": "tsunami-warning",
         "label": "海啸三级警报",
         "method": "POST",
