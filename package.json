@@ -4,7 +4,7 @@
     "description": "",
     "scripts": {
         "test": "node --test ./tests/map-baseline/image-diff.test.js && npm run test:maps",
-        "test:maps": "npm run build && node ./tests/map-baseline/run.js",
+        "test:maps": "npm run build && node --test ./tests/rendering.test.js && node ./tests/map-baseline/run.js",
         "baseline:maps": "npm run build && node ./tests/map-baseline/run.js --update",
         "prepare:map-data": "node ./build/prepare-map-data.js",
         "start": "parcel --public-url ./",
@@ -19,7 +19,6 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
-        "@sentry/browser": "^7.7.0",
         "@sentry/node": "^6.19.7",
         "@sentry/tracing": "^6.19.7",
         "body-parser": "^1.20.0",

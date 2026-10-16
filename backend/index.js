@@ -5,6 +5,8 @@ const Tracing = require("@sentry/tracing");
 const path = require("path");
 const bodyParser = require("body-parser");
 const MapController = require("./controller/MapController");
+const Renderer = require("./service/MapRenderer");
+const APIResponse = require("./response/APIResponse");
 
 const app = express();
 
@@ -37,6 +39,7 @@ app.use(Sentry.Handlers.tracingHandler());
 
 // Load Browser
 global.isBrowserLoaded = false;
+global.browserInitializationError = null;
 
 const puppeteer = require("puppeteer");
 puppeteer
@@ -53,79 +56,47 @@ puppeteer
         devtools: false,
     })
     .then(async (browser) => {
-        // Earthquake Page
-        const page = await browser.newPage();
-        page.setViewport({
-            width: 1920,
-            height: 1080,
-        });
-        page.on("console", (msg) => {
-            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
-        });
-        try {
-            await page.goto(`http://localhost:3000/template/index.html`, {
-                waitUntil: "networkidle0",
-            });
-        } catch (e) {
-            Sentry.captureException(e);
-        }
-        console.log("Earthquake page ready.");
-
-        // Tsunami Page
-        const tsunamiPage = await browser.newPage();
-        tsunamiPage.setViewport({
-            width: 1920,
-            height: 1080,
-        });
-        tsunamiPage.on("console", (msg) => {
-            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
-        });
-        try {
-            await tsunamiPage.goto(`http://localhost:3000/template/index.html`, {
-                waitUntil: "networkidle0",
-            });
-        } catch (e) {
-            Sentry.captureException(e);
-        }
-        console.log("Tsunami page ready.");
-
-        // Typhoon Page
-        const typhoonPage = await browser.newPage();
-        typhoonPage.setViewport({
-            width: 1920,
-            height: 1080,
-        });
-        typhoonPage.on("console", (msg) => {
-            for (let i = 0; i < msg.args().length; ++i) console.log(`${i}: ${msg.args()[i]}`);
-        });
-        try {
-            await typhoonPage.goto(`http://localhost:3000/template/typhoon.html`, {
-                waitUntil: "networkidle0",
-            });
-        } catch (e) {
-            Sentry.captureException(e);
-        }
-        console.log("Typhoon page ready.");
-
-        global.isBrowserLoaded = true;
         global.browser = browser;
-        global.page = page;
-        global.tsunamiPage = tsunamiPage;
-        global.typhoonPage = typhoonPage;
-        console.log("Browser Loaded.");
+        try {
+            global.page = await Renderer.createPage(browser, "index.html");
+            global.tsunamiPage = await Renderer.createPage(browser, "index.html");
+            global.typhoonPage = await Renderer.createPage(browser, "typhoon.html");
+            global.isBrowserLoaded = true;
+            console.log("Browser Loaded.");
+        } catch (error) {
+            await browser.close();
+            global.browser = null;
+            throw error;
+        }
+    })
+    .catch((error) => {
+        global.browserInitializationError = error;
+        Sentry.captureException(error);
+        console.error("Map browser initialization failed:", error);
     });
 
 // 静态文件服务目录
 app.use("/data", express.static(path.join(__dirname, "../data")));
 app.use("/template", express.static(path.join(__dirname, "../dist")));
 
-app.use("/map/highlight", MapController.highlight);
-app.use("/map/shindo_early_report", MapController.shindoEarlyReport);
-app.use("/map/shindo_report", MapController.shindoReport);
-app.use("/map/tsunami_warning", MapController.tsunamiWarning);
-app.use("/map/typhoon_info", MapController.typhoonInfo);
+function handleMap(handler) {
+    return (request, response, next) => {
+        Promise.resolve().then(() => handler(request, response)).catch(next);
+    };
+}
+
+app.use("/map/highlight", handleMap(MapController.highlight));
+app.use("/map/shindo_early_report", handleMap(MapController.shindoEarlyReport));
+app.use("/map/shindo_report", handleMap(MapController.shindoReport));
+app.use("/map/tsunami_warning", handleMap(MapController.tsunamiWarning));
+app.use("/map/typhoon_info", handleMap(MapController.typhoonInfo));
 
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
+app.use((error, request, response, next) => {
+    if (error.name !== "MapRenderError" || response.headersSent) return next(error);
+    console.error(error.message);
+    response.status(500).json(APIResponse.error("map_render_failed", "地图生成失败，请稍后重试"));
+});
 
 module.exports = app.listen(3000, () => console.log("Example app listening on port 3000!"));

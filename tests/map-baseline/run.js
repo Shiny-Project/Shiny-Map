@@ -179,6 +179,7 @@ async function run() {
         const deadline = performance.now() + 60000;
         while (!global.isBrowserLoaded) {
             if (startupError) throw startupError;
+            if (global.browserInitializationError) throw global.browserInitializationError;
             if (performance.now() > deadline) throw new Error("Browser startup timed out after 60 seconds.");
             await sleep(50);
         }
