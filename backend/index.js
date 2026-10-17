@@ -25,10 +25,11 @@ Sentry.init({
     tracesSampleRate: 1.0,
 });
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "1mb" }));
 app.use(
     bodyParser.urlencoded({
         extended: true,
+        limit: "1mb",
     })
 );
 // RequestHandler creates a separate execution context using domains, so that every
@@ -61,6 +62,7 @@ puppeteer
             global.page = await Renderer.createPage(browser, "index.html");
             global.tsunamiPage = await Renderer.createPage(browser, "index.html");
             global.typhoonPage = await Renderer.createPage(browser, "typhoon.html");
+            global.ewPage = await Renderer.createPage(browser, "ew.html");
             global.isBrowserLoaded = true;
             console.log("Browser Loaded.");
         } catch (error) {
@@ -90,6 +92,7 @@ app.use("/map/shindo_early_report", handleMap(MapController.shindoEarlyReport));
 app.use("/map/shindo_report", handleMap(MapController.shindoReport));
 app.use("/map/tsunami_warning", handleMap(MapController.tsunamiWarning));
 app.use("/map/typhoon_info", handleMap(MapController.typhoonInfo));
+app.post(["/map/ew", "/map/emergency_warning"], handleMap(MapController.emergencyWarning));
 
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());

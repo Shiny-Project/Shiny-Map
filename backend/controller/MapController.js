@@ -2,6 +2,21 @@ const APIResponse = require("../response/APIResponse");
 
 class MapController {
     constructor() {}
+    async emergencyWarning(request, response) {
+        const EWInput = require("../service/EWInput");
+        let warning;
+        try {
+            warning = EWInput.prepare(request.body.warning);
+        } catch (error) {
+            if (error.name !== "EWInputError") throw error;
+            return response.status(400).json(APIResponse.error("bad_ew", error.message));
+        }
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error("try_again_later", "人家还没准备好"));
+        }
+        const renderEW = require("../service/EWService");
+        response.json(APIResponse.success({ path: await renderEW(warning) }));
+    }
     /**
      * 中国大陆地区市级指定高亮
      * @param {*} request

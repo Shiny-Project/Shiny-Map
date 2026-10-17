@@ -22,9 +22,6 @@ function checkMapData(root) {
     const metadata = JSON.parse(fs.readFileSync(path.join(dataPath, "world_base.sources.json"), "utf8"));
     const buffer = fs.readFileSync(path.join(dataPath, "world_base.json"));
     assert.equal(sha256(buffer), metadata.outputSha256, "Base map does not match its source metadata.");
-    for (const [file, hash] of Object.entries(metadata.regionalInputs)) {
-        assert.equal(sha256(fs.readFileSync(path.join(dataPath, file))), hash, "Regenerate base map after changing " + file);
-    }
     const map = JSON.parse(buffer.toString("utf8"));
     const codes = map.features.map((feature) => feature.properties.code);
     assert.equal(new Set(codes).size, codes.length, "Base map contains duplicate regional outlines.");

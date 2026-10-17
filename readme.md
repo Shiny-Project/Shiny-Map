@@ -219,6 +219,70 @@ interface Circle {
 
 ![](https://i.ikp.yt/2022-11-06-ad0f1f37-22e7-412e-bfc1-89aa45581633.png)
 
+## JMA 气象特别警报（EW）
+
+`POST /Map/ew`，别名 `POST /Map/emergency_warning`。
+
+### 请求参数
+
+`warning` 为特别警报信息对象，字段如下：
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `active` | `Record<string, string[]>` | `{}` | 生效区域，紫色；键为特别警报种类代码，值为区域代码数组 |
+| `ended` | `Record<string, string[]>` | `{}` | 已解除 / 降级区域，灰色虚线；结构同 `active` |
+| `status` | string | `通常` | `通常`：无标记；`訓練`：训练标记；`試験`：试验标记 |
+| `infoType` | string | `発表` | `発表`：普通标题；`訂正`：订正标题；`取消`：电文取消标题 |
+
+区域代码为七位 JMA 气象警报 `AreaInformationCity` 字符串，例如横滨市北部 `1410011`、南部 `1410012`。
+区域名自动查表。同一区域有多种警报时可在多个种类中填写；同时存在生效与解除警报时，地图保留紫色，侧栏列出两组区域。
+`infoType: "取消"` 时，通过 `ended` 提供取消电文涉及的区域。
+`active` 和 `ended` 均为空时显示无特别警报信息。
+
+#### 特别警报种类代码
+
+| 代码 | 类型 |
+| --- | --- |
+| `32` | 暴风雪特别警报 |
+| `33` | 大雨特别警报 |
+| `35` | 暴风特别警报 |
+| `36` | 大雪特别警报 |
+| `37` | 波浪特别警报 |
+| `38` | 高潮特别警报 |
+| `39` | 土砂灾害特别警报 |
+
+### 请求示例
+
+```http
+POST /Map/ew
+Content-Type: application/json
+```
+
+```json
+{
+  "warning": {
+    "active": { "33": ["1410011"] },
+    "ended": { "33": ["1410012"] }
+  }
+}
+```
+
+### 返回值
+
+成功：HTTP 200，返回 1920 × 1080 PNG 的绝对路径。
+
+```json
+{
+  "path": "D:/Git/Shiny-Map/output/ew_00000000-0000-0000-0000-000000000000.png"
+}
+```
+
+| HTTP 状态 | `error.name` | 说明 |
+| --- | --- | --- |
+| 400 | `bad_ew` | 参数格式、警报种类或区域代码错误 |
+| 500 | `try_again_later` | 渲染器尚未就绪 |
+| 500 | `map_render_failed` | 图片生成失败 |
+
 ## Special Thanks
 
 我们感谢 @9SQ 开源的震度图生产样例及坐标数据。（ https://github.com/9SQ/seismic-intensity-map ）
