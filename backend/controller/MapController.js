@@ -2,6 +2,21 @@ const APIResponse = require("../response/APIResponse");
 
 class MapController {
     constructor() {}
+    async volcanoWarning(request, response) {
+        const { prepare } = require("../service/VolcanoInput");
+        let warning;
+        try {
+            warning = prepare(request.body.warning);
+        } catch (error) {
+            if (error.name !== "VolcanoInputError") throw error;
+            return response.status(400).json(APIResponse.error("bad_volcano", error.message));
+        }
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error("try_again_later", "人家还没准备好"));
+        }
+        const renderVolcano = require("../service/VolcanoService");
+        response.json(APIResponse.success({ path: await renderVolcano(warning) }));
+    }
     async emergencyWarning(request, response) {
         const EWInput = require("../service/EWInput");
         let warning;

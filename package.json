@@ -3,11 +3,12 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "test": "node --test ./tests/map-baseline/image-diff.test.js ./tests/map-baseline/map-state.test.js ./tests/ew/input.test.js ./tests/tsunami/input.test.js && npm run test:maps",
-        "test:maps": "npm run build && node --test ./tests/rendering.test.js && node ./tests/ew/render.js && node ./tests/map-baseline/run.js",
+        "test": "node --test ./tests/map-baseline/image-diff.test.js ./tests/map-baseline/map-state.test.js ./tests/ew/input.test.js ./tests/tsunami/input.test.js ./tests/volcano/input.test.js && npm run test:maps",
+        "test:maps": "npm run build && node --test ./tests/rendering.test.js && node ./tests/ew/render.js && node ./tests/volcano/render.js && node ./tests/map-baseline/run.js",
         "baseline:maps": "npm run build && node ./tests/map-baseline/run.js --update",
         "benchmark:maps": "npm run build && node ./tests/map-baseline/performance.js",
         "samples:ew": "npm run build && node ./tests/ew/render.js",
+        "samples:volcano": "npm run build && node ./tests/volcano/render.js",
         "start": "parcel --public-url ./",
         "prebuild": "node ./build/clean.js",
         "build": "parcel build --public-url ./",
@@ -16,7 +17,8 @@
     "source": [
         "src/index.html",
         "src/typhoon.html",
-        "src/ew.html"
+        "src/ew.html",
+        "src/volcano.html"
     ],
     "author": "",
     "license": "MIT",

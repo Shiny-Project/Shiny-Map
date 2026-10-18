@@ -63,6 +63,7 @@ puppeteer
             global.tsunamiPage = await Renderer.createPage(browser, "index.html");
             global.typhoonPage = await Renderer.createPage(browser, "typhoon.html");
             global.ewPage = await Renderer.createPage(browser, "ew.html");
+            global.volcanoPage = await Renderer.createPage(browser, "volcano.html");
             global.isBrowserLoaded = true;
             console.log("Browser Loaded.");
         } catch (error) {
@@ -93,6 +94,7 @@ app.use("/map/shindo_report", handleMap(MapController.shindoReport));
 app.use("/map/tsunami_warning", handleMap(MapController.tsunamiWarning));
 app.use("/map/typhoon_info", handleMap(MapController.typhoonInfo));
 app.post(["/map/ew", "/map/emergency_warning"], handleMap(MapController.emergencyWarning));
+app.post("/map/volcano_warning", handleMap(MapController.volcanoWarning));
 
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());

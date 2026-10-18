@@ -13,6 +13,8 @@ import Icon from "ol/style/Icon.js";
 import { shared as iconImageCache } from "ol/style/IconImageCache.js";
 import Stroke from "ol/style/Stroke.js";
 import Style from "ol/style/Style.js";
+import RegularShape from "ol/style/RegularShape.js";
+import Text from "ol/style/Text.js";
 import { VERSION } from "ol/util.js";
 
 // Wind circles are generated canvases. Retain the old cache bound rather than
@@ -78,7 +80,7 @@ const ol = {
     layer: { Vector: VectorLayer },
     proj: { fromLonLat },
     source: { Vector: VectorSource },
-    style: { Circle, Fill, Icon, Stroke, Style },
+    style: { Circle, Fill, Icon, Stroke, Style, RegularShape, Text },
 };
 
 window.ol = ol;

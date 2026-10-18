@@ -1,0 +1,121 @@
+[
+  {
+    "sourceFile": "45_01_01_200522_VFVO50.xml",
+    "sourceSha256": "c5ca07c13f316803bbe60af955f7c49690b942b3b1efc6856b6078b968e9c2ef",
+    "warning": {
+      "status": "通常",
+      "infoType": "発表",
+      "volcano": {
+        "code": "306",
+        "coordinate": "+3624.38+13831.38+2568/",
+        "kind": "13"
+      },
+      "areas": [
+        {
+          "code": "1042500",
+          "kind": "02"
+        },
+        {
+          "code": "2020800",
+          "kind": "02"
+        },
+        {
+          "code": "2032100",
+          "kind": "02"
+        },
+        {
+          "code": "2032300",
+          "kind": "02"
+        }
+      ],
+      "responses": [
+        {
+          "code": "1042500",
+          "kind": "43",
+          "condition": "発表"
+        },
+        {
+          "code": "2020800",
+          "kind": "43",
+          "condition": "発表"
+        },
+        {
+          "code": "2032100",
+          "kind": "43",
+          "condition": "発表"
+        },
+        {
+          "code": "2032300",
+          "kind": "43",
+          "condition": "発表"
+        }
+      ]
+    }
+  },
+  {
+    "sourceFile": "45_02_01_200522_VFVO50.xml",
+    "sourceSha256": "af9a592424447e1a751f03544df3f8773208ae8c486c6e89b5b55a95ab131730",
+    "warning": {
+      "status": "通常",
+      "infoType": "発表",
+      "volcano": {
+        "code": "315",
+        "coordinate": "+3514.00+13901.25+1438/",
+        "kind": "15"
+      },
+      "areas": [
+        {
+          "code": "1438200",
+          "kind": "01"
+        }
+      ],
+      "responses": [
+        {
+          "code": "1438200",
+          "kind": "41",
+          "condition": "発表"
+        }
+      ]
+    }
+  },
+  {
+    "sourceFile": "45_03_01_200731_VFVO50.xml",
+    "sourceSha256": "e9e0155092281f664eb52a6f8ae61087ee6938a601ce1d2661c82d805a71f982",
+    "warning": {
+      "status": "通常",
+      "infoType": "発表",
+      "volcano": {
+        "code": "350",
+        "coordinate": "+3638.63+13831.66+2160/",
+        "kind": "11"
+      },
+      "areas": [
+        {
+          "code": "1042500",
+          "kind": "04"
+        },
+        {
+          "code": "1042600",
+          "kind": "04"
+        }
+      ],
+      "responses": [
+        {
+          "code": "1042500",
+          "kind": "45",
+          "condition": "解除"
+        },
+        {
+          "code": "1042600",
+          "kind": "45",
+          "condition": "解除"
+        },
+        {
+          "code": "1042100",
+          "kind": "45",
+          "condition": "継続"
+        }
+      ]
+    }
+  }
+]
