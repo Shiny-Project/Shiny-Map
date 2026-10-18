@@ -124,11 +124,19 @@ class MapController {
      * @param {*} response
      */
     async tsunamiWarning(request, response) {
+        const TsunamiInput = require("../service/TsunamiInput");
+        let warning;
+        try {
+            warning = TsunamiInput.prepare(request.body.warning, request.body.type === "cancel");
+        } catch (error) {
+            if (error.name !== "TsunamiInputError") throw error;
+            return response.status(400).json(APIResponse.error("bad_tsunami", error.message));
+        }
         if (!global.isBrowserLoaded) {
             return response.status(500).json(APIResponse.error("try_again_later", "人家还没准备好"));
         }
 
-        if (request.body.type && request.body.type === "cancel") {
+        if (!warning.areaData.features.length) {
             const MapService = require("../service/MapService");
             const path = await MapService.tsunamiWarningCancel();
             response.json(
@@ -139,15 +147,8 @@ class MapController {
             return;
         }
 
-        let warningData;
-        try {
-            warningData = JSON.parse(request.body.warning);
-        } catch (e) {
-            return response.status(400).json(APIResponse.error("bad_json", "无法解析 JSON"));
-        }
-
         const MapService = require("../service/MapService");
-        const path = await MapService.tsunamiWarning(warningData);
+        const path = await MapService.tsunamiWarning(warning);
         response.json(
             APIResponse.success({
                 path,

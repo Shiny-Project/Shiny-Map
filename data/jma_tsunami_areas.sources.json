@@ -1,0 +1,21 @@
+{
+  "sourcePage": "https://www.data.jma.go.jp/developer/gis.html",
+  "sourceUrl": "https://www.data.jma.go.jp/developer/gis/20240520_AreaTsunami_GIS.zip",
+  "sourceSha256": "735e2ed36befa8d9511f01e6a0e503e01e7824b5125a71326f3f623d808a7eb9",
+  "datasetDate": "2024-05-20",
+  "areaType": "津波予報区 / AreaTsunami",
+  "processing": "Code/name index extracted from the official UTF-8 DBF. Match existing coastline GeoJSON by code; retain legacy names as aliases. Also accept the code 772 spelling used by official VTSE41 samples.",
+  "areaCount": 66,
+  "excludedUncodedFeatures": 4,
+  "coastlinePath": "backend/definition/jma_tsunami_area.json",
+  "coastlineSha256": "d82e381a36b3842951311c4519fb03fb70842afb9ae6623e1cf3152d4ad4da05",
+  "outputSha256": "fafd69c03fd94380519ab0c22508dd563b289138aa445916f86d6c606b4ed82c",
+  "specificationPage": "https://xml.kishou.go.jp/tec_material.html",
+  "codeTableUrl": "https://xml.kishou.go.jp/jmaxml_20261007_Code.zip",
+  "codeTables": "地震火山関連コード表.xlsx: sheet 14 (TsunamiWarning), sheet 31 (AreaTsunami)",
+  "manualUrl": "https://xml.kishou.go.jp/jmaxml_20261009_Manual%28pdf%29.zip",
+  "manualSection": "地震火山関連_解説資料.pdf: II.11, Body/Tsunami/Forecast/Item/Category/Kind",
+  "samplesUrl": "https://xml.kishou.go.jp/jmaxml_20260917_Samples.zip",
+  "licenseUrl": "https://www.jma.go.jp/jma/kishou/info/coment.html",
+  "attribution": "気象庁 予報区等GISデータを加工して作成"
+}

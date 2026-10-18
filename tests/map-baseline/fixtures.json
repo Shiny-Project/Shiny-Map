@@ -81,6 +81,44 @@
         "params": { "type": "cancel" }
     },
     {
+        "id": "tsunami-forecast",
+        "label": "海平面变动预报",
+        "method": "POST",
+        "endpoint": "/map/tsunami_warning",
+        "params": {
+            "type": "warning",
+            "warning": { "forecast": ["茨城県", "千葉県九十九里・外房"] }
+        }
+    },
+    {
+        "id": "tsunami-mixed",
+        "label": "海啸警报与海平面变动并存",
+        "method": "POST",
+        "endpoint": "/map/tsunami_warning",
+        "params": {
+            "type": "warning",
+            "warning": {
+                "forecast": ["伊豆諸島"],
+                "notice": ["相模湾・三浦半島"],
+                "warning": ["茨城県"],
+                "alert": ["千葉県九十九里・外房"]
+            }
+        }
+    },
+    {
+        "id": "tsunami-downgrade",
+        "label": "解除后仍有海平面变动（JMA 72 / 73）",
+        "method": "POST",
+        "endpoint": "/map/tsunami_warning",
+        "params": {
+            "type": "cancel",
+            "warning": {
+                "72": ["愛媛県宇和海沿岸"],
+                "73": ["愛媛県瀬戸内海沿岸", "兵庫県瀬戸内海沿岸"]
+            }
+        }
+    },
+    {
         "id": "typhoon-track",
         "label": "台风历史、当前与预报路径",
         "method": "POST",

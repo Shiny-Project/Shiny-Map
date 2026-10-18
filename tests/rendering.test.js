@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const { before, after, test } = require("node:test");
 const { setTimeout: sleep } = require("node:timers/promises");
 const Renderer = require("../backend/service/MapRenderer");
@@ -497,4 +498,102 @@ test("legacy forecasts still render without error radii and repeated typhoon dra
     } finally {
         await page.evaluate(() => clearTyphoonInfo());
     }
+});
+
+async function captureTsunami(params, id) {
+    const page = global.tsunamiPage;
+    const original = page.screenshot;
+    let state;
+    page.screenshot = async function (...args) {
+        state = await page.evaluate(() => {
+            const layer = getLayerByName("tsunami_warning");
+            const features = layer?.getSource().getFeatures() || [];
+            const colors = {};
+            const pixels = [];
+            for (const feature of features) {
+                colors[feature.get("code")] = layer.getStyleFunction()(feature).getStroke().getColor();
+                const [left, bottom, right, top] = feature.getGeometry().getExtent();
+                pixels.push(map.getPixelFromCoordinate([left, bottom]), map.getPixelFromCoordinate([right, top]));
+            }
+            let bluePixels = 0;
+            for (const canvas of document.querySelectorAll(".ol-layer canvas")) {
+                const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] === 0 && data[i + 1] === 128 && data[i + 2] === 255 && data[i + 3] === 255) bluePixels++;
+                }
+            }
+            return {
+                colors, pixels, bluePixels,
+                title: document.querySelector("#info-title span").textContent,
+                titleOpacity: getComputedStyle(document.getElementById("info-title")).opacity,
+                legendRows: Array.from(document.querySelectorAll("#tsunami-legend > div"))
+                    .filter((row) => row.getBoundingClientRect().height > 0).map((row) => row.textContent.trim()),
+                tip: document.getElementById("fullscreen-tip").style.opacity,
+            };
+        });
+        return original.apply(this, args);
+    };
+    try {
+        const response = await fetch("http://localhost:3000/map/tsunami_warning", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify(params), signal: AbortSignal.timeout(15000),
+        });
+        const result = { status: response.status, body: await response.json() };
+        assertSuccess(result);
+        const directory = path.resolve("output/tsunami-samples");
+        fs.mkdirSync(directory, { recursive: true });
+        fs.copyFileSync(result.body.path, path.join(directory, id + ".png"));
+        assert.equal(await page.evaluate(() => !!getLayerByName("tsunami_warning")), false);
+        return state;
+    } finally {
+        page.screenshot = original;
+    }
+}
+
+for (const id of ["tsunami-forecast", "tsunami-mixed", "tsunami-downgrade", "tsunami-warning", "tsunami-cancel"]) {
+    test("tsunami rendering paints and clears " + id, async () => {
+        const state = await captureTsunami(fixtures.find((item) => item.id === id).params, id);
+        const forecast = ["tsunami-forecast", "tsunami-mixed", "tsunami-downgrade"].includes(id);
+        assert.deepEqual(state.legendRows, ["大海啸警报", "海啸警报", "海啸注意报", "海平面变动（海啸预报）"]);
+        assert.equal(state.titleOpacity, "1");
+        assert.equal(state.title, ["tsunami-mixed", "tsunami-warning"].includes(id) ? "海啸警报" : "海啸消息");
+        assert.equal(state.tip === "1", id === "tsunami-cancel");
+        if (forecast) assert.ok(state.bluePixels > 50, "The forecast coast was not painted blue.");
+        else assert.equal(state.bluePixels, 0);
+        if (id === "tsunami-mixed") {
+            assert.deepEqual(state.colors, { "300": "#ff2800", "310": "#c800ff", "320": "#0080ff", "330": "#faf500" });
+        } else if (forecast) {
+            assert.ok(Object.values(state.colors).every((color) => color === "#0080ff"));
+        }
+    });
+}
+
+test("a tsunami advisory alone uses the warning title and keeps all four legend rows", async () => {
+    const state = await captureTsunami({ warning: { notice: ["300"] } }, "tsunami-notice");
+    assert.equal(state.title, "海啸警报");
+    assert.equal(state.legendRows.length, 4);
+    assert.deepEqual(state.colors, { "300": "#faf500" });
+});
+
+test("nationwide JMA forecast coasts fit the frame instead of being clipped at zoom 6", async () => {
+    const sample = require("./tsunami/official-samples.json")[1];
+    const state = await captureTsunami({ warning: sample.warning }, "tsunami-nationwide");
+    assert.equal(Object.keys(state.colors).length, 66);
+    assert.ok(state.bluePixels > 50);
+    for (const [x, y] of state.pixels) {
+        assert.ok(x >= 99 && x <= 1821 && y >= 99 && y <= 981, "Forecast coast is cropped: " + [x, y]);
+    }
+});
+
+test("invalid tsunami forecasts return HTTP 400 before rendering and the next request succeeds", async () => {
+    for (const warning of [{ forecast: ["unknown coast"] }, { forecast: "茨城県" }, null]) {
+        const response = await fetch("http://localhost:3000/map/tsunami_warning", {
+            method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ warning }), signal: AbortSignal.timeout(15000),
+        });
+        assert.equal(response.status, 400);
+        assert.equal((await response.json()).error.name, "bad_tsunami");
+    }
+    const state = await captureTsunami({ warning: { "71": ["300"] } }, "tsunami-code-71");
+    assert.deepEqual(state.colors, { "300": "#0080ff" });
 });

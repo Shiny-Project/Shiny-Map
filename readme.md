@@ -96,7 +96,7 @@ const shindo = {
 
 ---
 
-## 海啸警报
+## 海啸警报与预报
 
 `POST /Map/tsunami_warning`
 
@@ -104,28 +104,33 @@ const shindo = {
 
 | 参数名  | 参数类型 | 参数说明 |
 | ------- | -------- | -------- |
-| type    | string   | 类型     |
-| warning | object   | 警报信息 |
+| type    | string   | `warning`：发布或更新；`cancel`：解除 |
+| warning | object / JSON string | 警报与预报信息 |
 
-类型固定为`warning`（警报发布或更新）或者`cancel`（取消）。值为`cancel`时会忽略`warning`参数的内容。
-
-对警报信息详细定义如下
+对 `warning` 参数详细定义如下：
 
 ```JavaScript
 const warning = {
+    "forecast": ["愛媛県宇和海沿岸"], // 海平面变动（海啸预报）的区域
     "notice": ["京都府"], // 海啸注意报的区域
     "warning": ["有明・八代海"], // 海啸警报的区域
     "alert": ["千葉県九十九里・外房"] // 大海啸警报的区域
 }
 ```
 
-其中区域名按照 JMA 规定的海啸警报区域名填写。
+区域填写 JMA 津波预报区名称或三位代码（如 `"600"`）。各等级可省略，同一区域取最高等级。
+
+分组键也可使用 JMA 代码：`71` / `72` / `73`（预报）、`62`（注意报）、`51`（警报）、`52` / `53`（大警报）。
+
+`type: "cancel"` 时，仍有海平面变动的区域通过 `warning.forecast` 提供；未提供预报区域时显示全部解除。
 
 **预览**
 
-| 警报发布 / 更新 | 警报取消 |
+| 警报发布 / 更新 | 仅海平面变动 |
 | --- | --- |
-| ![海啸警报发布或更新](docs/images/tsunami-warning.png)<br>按海啸注意报、海啸警报、大海啸警报分别标识涉及区域。 | ![海啸警报取消](docs/images/tsunami-cancel.png)<br>警报取消后，显示当前无海啸警报发表。 |
+| ![海啸警报发布或更新](docs/images/tsunami-warning.png) | ![海平面变动预报](docs/images/tsunami-forecast.png) |
+| **警报与预报并存** | **全部解除** |
+| ![海啸警报与预报并存](docs/images/tsunami-mixed.png) | ![海啸警报全部解除](docs/images/tsunami-cancel.png) |
 
 ---
 
