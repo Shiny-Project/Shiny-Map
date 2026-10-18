@@ -1,48 +1,6 @@
-# Shiny 地图渲染装置
+# Shiny-Map 接口文档
 
-## 技术选择
-
-本项目起初试图采用`basemap`进行地图绘制，在实践中发现`basemap`无法对同一地图实例进行重定位。然而`basemap`地图实例初始化、读入`shapefile`时间长，在无法复用地图实例的情况下，难以满足性能需求。
-
-故目前采用`openlayers`进行地图渲染，并采用`Chrome Headless`进行截图，在复用浏览器实例的情况下，可以将成品图生成时间降低到 1s 内。
-
-## 性能 Benchmark
-
-以下为 2026-10-17（UTC+8）在提交 `3fff85c` 上的实测结果。每个场景预热 10 次、正式测量 100 次，
-共 900 次正式请求，全部成功。各场景循环串行执行，复用同一浏览器及三张地图页面。
-计时从本地 HTTP 请求发出到接口返回图片路径，包含地图绘制就绪等待、PNG 截图编码与写盘。
-
-测试环境：Windows 11 Pro x64，AMD Ryzen 7 5800X（16 个逻辑处理器），63.9 GiB 内存；
-Node.js 24.19.0、Puppeteer 13.7.0、HeadlessChrome 101.0.4950.0、OpenLayers 10.11.0。
-截图尺寸为 1920 × 1080，沿用应用默认浏览器参数，禁用 GPU 与加速 2D Canvas。
-
-耗时单位为毫秒，越低越快。P95 表示 95% 的请求耗时不超过该值。
-
-| 场景 | 中位耗时 | P95 | 最大耗时 |
-| --- | ---: | ---: | ---: |
-| 城市高亮 | 213.4 | 241.2 | 269.9 |
-| 震度速报 | 190.6 | 208.5 | 215.7 |
-| 详细震度与震中 | 222.6 | 244.5 | 264.3 |
-| 北海道震度与俄罗斯边界 | 183.6 | 203.6 | 215.7 |
-| 海啸三级警报 | 230.5 | 255.1 | 278.9 |
-| 海啸警报取消 | 188.1 | 203.1 | 224.2 |
-| 台风历史、当前与预报路径 | 161.7 | 184.7 | 192.7 |
-| 台风消散提示 | 157.6 | 184.4 | 188.8 |
-| 全国 1,894 个城市震度点及震中 | 288.2 | 315.7 | 405.5 |
-
-三张地图页面在强制 GC 后的 JS 堆合计：预热后为 79.36 MiB，900 次正式请求后为 79.86 MiB。
-
-复现命令：
-
-```sh
-npm run benchmark:maps -- --label=readme --runs=100 --warmups=10
-```
-
-完整报告包含逐次耗时、绘制等待与截图耗时、内存采样，生成于 `output/map-benchmark/readme/performance.json`。
-
-## API
-
-高亮城市
+## 高亮城市
 
 `GET /Map/highlight`
 
@@ -67,9 +25,7 @@ npm run benchmark:maps -- --label=readme --runs=100 --warmups=10
 
 ☆ 对于直辖市无法细分
 
-未来可能支持更多。
-
-由于地图数据政治不正确，我们无法对西南某些省份提供支持。对于这些省份，返回`HTTP 451`。
+不支持的西南省份返回 `HTTP 451`。
 
 **示例**
 
@@ -77,7 +33,7 @@ npm run benchmark:maps -- --label=readme --runs=100 --warmups=10
 
 ---
 
-震度速报
+## 震度速报
 
 `POST /Map/shindo_early_report`
 
@@ -112,7 +68,7 @@ const shindo = {
 
 ---
 
-各地区震度信息
+## 各地区震度信息
 
 `POST /Map/shindo_report`
 
@@ -140,7 +96,7 @@ const shindo = {
 
 ---
 
-海啸警报
+## 海啸警报
 
 `POST /Map/tsunami_warning`
 
@@ -171,7 +127,7 @@ const warning = {
 
 ---
 
-台风路径信息
+## 台风路径信息
 
 `POST /Map/typhoon_info`
 
@@ -198,26 +154,57 @@ interface Point {
     coordinate: [number, number];
     /** 台风强度 1: 热带风暴, 2: 强热带风暴, 3: 台风, 4: 强台风, 5: 超强台风 */
     intensity: number;
-    /** 当前路径点上的范围信息 */
+    /** 当前点可提供强风/暴风域，预报点可提供误差圈 */
     circles?: Circle[];
 }
 
 interface Circle {
-    /** 范围类型 1: 强风域, 2: 暴风域 */
+    /** 范围类型 1: 强风域, 2: 暴风域, 3: 预报误差圈（仅用于 type: 3 的路径点） */
     type: number;
     /** 半径，单位为米 */
     radius: number;
     /**
      * 方向 1: 全域, 2: 北, 3: 东北, 4: 东, 5: 东南, 6: 南, 7: 西南, 8: 西, 9: 西北
      * 1 为整圆 其余为半圆
+     * 风圈省略时默认为全域；预报误差圈始终为整圆，忽略此字段
      */
-    direction: number;
+    direction?: number;
+}
+```
+
+路径点按时间先后排列。预报误差圈通过预报点的 `circles` 字段提供，未提供时不显示误差圈。
+
+例如：
+
+```json
+{
+    "points": [
+        { "type": 1, "coordinate": [127.5, 19.4], "intensity": 2 },
+        {
+            "type": 2,
+            "coordinate": [126.2, 19.2],
+            "intensity": 3,
+            "circles": [{ "type": 1, "radius": 200000 }]
+        },
+        {
+            "type": 3,
+            "coordinate": [125.9, 19.0],
+            "intensity": 4,
+            "circles": [{ "type": 3, "radius": 80000 }]
+        },
+        {
+            "type": 3,
+            "coordinate": [124.0, 18.7],
+            "intensity": 5,
+            "circles": [{ "type": 3, "radius": 180000 }]
+        }
+    ]
 }
 ```
 
 **预览**
 
-![](https://i.ikp.yt/2022-11-06-ad0f1f37-22e7-412e-bfc1-89aa45581633.png)
+![台风消息示例：历史路径、当前风圈、预测路径与误差圈](docs/images/typhoon-info.png)
 
 ## JMA 气象特别警报（EW）
 
@@ -229,13 +216,13 @@ interface Circle {
 
 | 字段 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `active` | `Record<string, string[]>` | `{}` | 生效区域，紫色；键为特别警报种类代码，值为区域代码数组 |
-| `ended` | `Record<string, string[]>` | `{}` | 已解除 / 降级区域，灰色虚线；结构同 `active` |
+| `active` | `Record<string, string[]>` | `{}` | 生效区域；键为特别警报种类代码，值为区域代码数组 |
+| `ended` | `Record<string, string[]>` | `{}` | 已解除 / 降级区域；结构同 `active` |
 | `status` | string | `通常` | `通常`：无标记；`訓練`：训练标记；`試験`：试验标记 |
 | `infoType` | string | `発表` | `発表`：普通标题；`訂正`：订正标题；`取消`：电文取消标题 |
 
 区域代码为七位 JMA 气象警报 `AreaInformationCity` 字符串，例如横滨市北部 `1410011`、南部 `1410012`。
-区域名自动查表。同一区域有多种警报时可在多个种类中填写；同时存在生效与解除警报时，地图保留紫色，侧栏列出两组区域。
+同一区域有多种警报时，可在多个种类中填写；同时存在生效与解除警报时，两组信息均会显示。
 `infoType: "取消"` 时，通过 `ended` 提供取消电文涉及的区域。
 `active` 和 `ended` 均为空时显示无特别警报信息。
 
@@ -282,6 +269,10 @@ Content-Type: application/json
 | 400 | `bad_ew` | 参数格式、警报种类或区域代码错误 |
 | 500 | `try_again_later` | 渲染器尚未就绪 |
 | 500 | `map_render_failed` | 图片生成失败 |
+
+### 预览
+
+![特别警报示例：横滨市北部生效、南部解除](docs/images/emergency-warning.png)
 
 ## Special Thanks
 

@@ -99,8 +99,18 @@
                             { "type": 2, "radius": 50000, "direction": 9 }
                         ]
                     },
-                    { "type": 3, "coordinate": [125.9, 19.0], "intensity": 4 },
-                    { "type": 3, "coordinate": [124.0, 18.7], "intensity": 5 }
+                    {
+                        "type": 3,
+                        "coordinate": [125.9, 19.0],
+                        "intensity": 4,
+                        "circles": [{ "type": 3, "radius": 80000 }]
+                    },
+                    {
+                        "type": 3,
+                        "coordinate": [124.0, 18.7],
+                        "intensity": 5,
+                        "circles": [{ "type": 3, "radius": 180000 }]
+                    }
                 ]
             }
         }

@@ -300,3 +300,139 @@ test("page readiness waits for delayed GeoJSON parsing and map rendering", async
         if (page) await page.close();
     }
 });
+
+test("typhoon forecasts connect from the current position and fit geodesic error circles", async () => {
+    const page = global.typhoonPage;
+    const info = {
+        points: [
+            { type: 1, coordinate: [138, 43], intensity: 2 },
+            { type: 2, coordinate: [140, 45], intensity: 3 },
+            { type: 3, coordinate: [143, 50], intensity: 4, circles: [{ type: 3, radius: 400000 }] },
+            { type: 3, coordinate: [149, 55], intensity: 5, circles: [{ type: 3, radius: 600000 }] },
+        ],
+    };
+    try {
+        await page.evaluate((data) => drawTyphoonInfo(data), info);
+        await Renderer.waitForReady(page);
+        const result = await page.evaluate(() => {
+            const features = TyphoonInfoLayer.getSource().getFeatures();
+            const resolution = map.getView().getResolution();
+            const lines = features.filter((feature) => feature.getGeometry().getType() === "LineString");
+            const circles = features.filter((feature) => feature.get("circle")?.type === 3);
+            const point = features.find((feature) => feature.get("type") === 3);
+            const pointStyle = point.getStyleFunction()(point, resolution);
+            return {
+                lines: lines.map((feature) => {
+                    const style = feature.getStyleFunction();
+                    return {
+                        now: feature.get("now").type,
+                        next: feature.get("next").type,
+                        dash: style(feature, resolution).getStroke().getLineDash(),
+                        zoomedDash: style(feature, resolution / 2).getStroke().getLineDash(),
+                    };
+                }),
+                circles: circles.map((feature) => {
+                    const geometry = feature.getGeometry();
+                    return {
+                        radius: feature.get("circle").radius,
+                        center: feature.get("point").coordinate,
+                        coordinates: geometry.clone().transform("EPSG:3857", "EPSG:4326").getCoordinates()[0],
+                        pixels: geometry.getCoordinates()[0].map((coordinate) => map.getPixelFromCoordinate(coordinate)),
+                        zIndex: feature.getStyle().getZIndex(),
+                    };
+                }),
+                pointZIndex: pointStyle.getZIndex(),
+                pointFill: pointStyle.getImage().getFill().getColor(),
+            };
+        });
+        assert.deepEqual(result.lines.map(({ now, next }) => [now, next]), [[1, 2], [2, 3], [3, 3]]);
+        assert.equal(result.lines[0].dash, null);
+        for (const line of result.lines.slice(1)) {
+            assert.deepEqual(line.dash, [8, 6]);
+            assert.deepEqual(line.zoomedDash, line.dash);
+        }
+        assert.equal(result.circles.length, 2);
+        const { getDistance } = await import("ol/sphere.js");
+        for (const circle of result.circles) {
+            for (const coordinate of circle.coordinates) {
+                assert.ok(Math.abs(getDistance(circle.center, coordinate) - circle.radius) < 1);
+            }
+            for (const [x, y] of circle.pixels) {
+                assert.ok(x >= 99 && x <= 1721 && y >= 99 && y <= 981, "Error circle is cropped.");
+            }
+            assert.ok(circle.zIndex < result.pointZIndex);
+        }
+        assert.equal(result.pointFill, "#ffffff");
+    } finally {
+        await page.evaluate(() => clearTyphoonInfo());
+    }
+});
+
+test("forecast paths cross the date line without a world-spanning segment or mutating input", async () => {
+    const page = global.typhoonPage;
+    try {
+        const result = await page.evaluate(() => {
+            const data = { points: [
+                { type: 2, coordinate: [179, 30], intensity: 3, circles: [{ type: 3, radius: 500000 }] },
+                { type: 3, coordinate: [-179, 31], intensity: 3, circles: [
+                    { type: 3, radius: 200000 },
+                    { type: 3, radius: 0 },
+                    { type: 3, radius: -1 },
+                    { type: 3, radius: null },
+                    { type: 3, radius: "200000" },
+                ] },
+            ] };
+            const original = JSON.stringify(data);
+            drawTyphoonInfo(data);
+            const features = TyphoonInfoLayer.getSource().getFeatures();
+            const line = features.find((feature) => feature.getGeometry().getType() === "LineString");
+            const extent = TyphoonInfoLayer.getSource().getExtent();
+            return {
+                unchanged: JSON.stringify(data) === original,
+                line: line.getGeometry().clone().transform("EPSG:3857", "EPSG:4326").getCoordinates(),
+                width: extent[2] - extent[0],
+                circles: features.filter((feature) => feature.get("circle")).length,
+            };
+        });
+        await Renderer.waitForReady(page);
+        assert.equal(result.unchanged, true);
+        assert.ok(Math.abs(result.line[0][0] - 179) < 1e-9);
+        assert.ok(Math.abs(result.line[1][0] - 181) < 1e-9);
+        assert.ok(result.width < 1000000, "The track spans the entire world.");
+        assert.equal(result.circles, 1);
+    } finally {
+        await page.evaluate(() => clearTyphoonInfo());
+    }
+});
+
+test("legacy forecasts still render without error radii and repeated typhoon draws clear their state", async () => {
+    const page = global.typhoonPage;
+    const info = JSON.parse(JSON.stringify(fixtures.find((item) => item.id === "typhoon-track").params.typhoon_info));
+    for (const point of info.points.filter((point) => point.type === 3)) delete point.circles;
+    try {
+        const result = await page.evaluate((data) => {
+            drawTyphoonInfo(data);
+            drawTyphoonInfo(data);
+            const features = TyphoonInfoLayer.getSource().getFeatures();
+            const legacy = {
+                layers: map.getLayers().getArray().filter((layer) => layer.get("name") === "typhoon_info").length,
+                windCircles: features.filter((feature) => [1, 2].includes(feature.get("circle")?.type)).length,
+                errorCircles: features.filter((feature) => feature.get("circle")?.type === 3).length,
+            };
+            drawTyphoonInfo({ remark: "台风已消散" });
+            const remark = {
+                layer: !!getLayerByName("typhoon_info"),
+                tip: document.getElementById("fullscreen-tip").style.opacity,
+            };
+            drawTyphoonInfo({ points: [] });
+            return { legacy, remark, tipAfterClear: document.getElementById("fullscreen-tip").style.opacity };
+        }, info);
+        assert.deepEqual(result.legacy, {
+            layers: 1, windCircles: 2, errorCircles: 0,
+        });
+        assert.deepEqual(result.remark, { layer: false, tip: "1" });
+        assert.equal(result.tipAfterClear, "0");
+    } finally {
+        await page.evaluate(() => clearTyphoonInfo());
+    }
+});

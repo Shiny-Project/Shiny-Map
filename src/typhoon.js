@@ -1,4 +1,6 @@
 import "ol/ol.css";
+import { circular } from "ol/geom/Polygon.js";
+import { extend } from "ol/extent.js";
 import ol from "./openlayers";
 import { createBaseMapLayer, defaultMapStyle as defaultStyle } from "./base-map";
 
@@ -16,59 +18,8 @@ const map = new ol.Map({
 
 window.map = map;
 
-// 台风信息
-
-// const typhoonPoints = [
-//     {
-//         // 1: previous, 2: current, 3: estimation
-//         type: 1,
-//         coordinate: [127.5, 19.4],
-//         // 1: TS, 2: STS, 3: 強いTY, 4: 非常に強いTY, 5: 猛烈なTY
-//         intensity: 1,
-//     },
-//     {
-//         type: 1,
-//         coordinate: [126.5, 19.4],
-//         intensity: 1,
-//     },
-//     {
-//         type: 2,
-//         coordinate: [126.2, 19.2],
-//         intensity: 2,
-//         circles: [
-//             {
-//                 // 1: 强风, 2: 暴风
-//                 type: 1,
-//                 radius: 200000,
-//                 // 1: 全域, 2: 北, 3: 东北, 4: 东, 5: 东南, 6: 南, 7: 西南, 8: 西, 9: 西北
-//                 // 1 为整圆 其余为半圆
-//                 direction: 9,
-//             },
-//             {
-//                 type: 2,
-//                 radius: 50000,
-//                 direction: 1,
-//             },
-//         ],
-//     },
-//     {
-//         type: 3,
-//         coordinate: [125.9, 19.0],
-//         intensity: 3,
-//     },
-//     {
-//         type: 3,
-//         coordinate: [124.0, 18.7],
-//         intensity: 3,
-//     },
-//     {
-//         type: 3,
-//         coordinate: [123.4, 18.5],
-//         intensity: 4,
-//     },
-// ];
-
 const drawTyphoonInfo = (info) => {
+    clearTyphoonInfo();
     if (info.remark) {
         window.setFullscreenTip(info.remark);
         window.showFullscreenTip();
@@ -78,7 +29,13 @@ const drawTyphoonInfo = (info) => {
         return;
     }
 
-    const typhoonPoints = info.points;
+    // Keep tracks crossing the date line in the same world copy.
+    let previousLongitude = info.points[0].coordinate[0];
+    const typhoonPoints = info.points.map((point) => {
+        const longitude = point.coordinate[0] + 360 * Math.round((previousLongitude - point.coordinate[0]) / 360);
+        previousLongitude = longitude;
+        return { ...point, coordinate: [longitude, point.coordinate[1]] };
+    });
 
     const typhoonVector = new ol.source.Vector({});
 
@@ -106,13 +63,17 @@ const drawTyphoonInfo = (info) => {
     /** @type {import("ol/style/Style.js").StyleFunction} */
     const typhoonPointFeatureStyleFunction = (feature) => {
         const properties = feature.getProperties();
+        const forecast = properties.type === 3;
+        const color = IntensityColorMap[properties.intensity] || "#000000";
         return new ol.style.Style({
             image: new ol.style.Circle({
-                radius: properties?.["type"] === 2 ? 5 : 3,
+                radius: properties.type === 2 ? 5 : forecast ? 4 : 3,
                 fill: new ol.style.Fill({
-                    color: IntensityColorMap[properties?.["intensity"]] || "#000000",
+                    color: forecast ? "#ffffff" : color,
                 }),
+                stroke: forecast ? new ol.style.Stroke({ color, width: 2 }) : undefined,
             }),
+            zIndex: properties.type === 2 ? 5 : 4,
         });
     };
 
@@ -127,21 +88,19 @@ const drawTyphoonInfo = (info) => {
         })
     );
 
-    map.getView().fit(getLayerByName("typhoon_info").getSource().getExtent(), {
-        maxZoom: 6,
-    });
-
     // 绘制坐标点连线
 
     /** @type {import("ol/style/Style.js").StyleFunction} */
-    const typhoonLineFeatureStyleFunction = (feature, resolution) => {
+    const typhoonLineFeatureStyleFunction = (feature) => {
         const properties = feature.getProperties();
+        const forecast = properties.next.type === 3;
         return new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: "#aaaaaa",
+                color: forecast ? "rgba(96, 107, 122, 0.4)" : "#aaaaaa",
                 width: 2,
-                lineDash: properties.next.type === 3 ? [20000 / resolution, 15000 / resolution] : undefined,
+                lineDash: forecast ? [8, 6] : undefined,
             }),
+            zIndex: 3,
         });
     };
 
@@ -153,6 +112,24 @@ const drawTyphoonInfo = (info) => {
         feature.setProperties({ now, next });
         feature.setStyle(typhoonLineFeatureStyleFunction);
         typhoonVector.addFeature(feature);
+    }
+
+    // Use geodesic polygons so radii in meters remain correct at every latitude.
+    const forecastCircleStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({ color: "rgba(96, 107, 122, 0.4)", width: 1.5, lineDash: [8, 6] }),
+        zIndex: 0,
+    });
+    for (const point of typhoonPoints.filter((point) => point.type === 3)) {
+        for (const circle of point.circles || []) {
+            if (circle.type !== 3 || !Number.isFinite(circle.radius) || circle.radius <= 0) continue;
+            const feature = new ol.Feature({
+                geometry: circular(point.coordinate, circle.radius, 128).transform("EPSG:4326", "EPSG:3857"),
+                circle,
+                point,
+            });
+            feature.setStyle(forecastCircleStyle);
+            typhoonVector.addFeature(feature);
+        }
     }
 
     // 绘制风圈
@@ -179,6 +156,7 @@ const drawTyphoonInfo = (info) => {
         2: 2,
     };
 
+    const fitExtent = typhoonVector.getExtent().slice();
     const currentPoint = typhoonPoints.find((p) => p.type === 2);
 
     if (currentPoint) {
@@ -215,7 +193,7 @@ const drawTyphoonInfo = (info) => {
             context.arc(
                 centerX,
                 centerY,
-                radius - 2,
+                Math.max(0, radius - 2),
                 startingAngle,
                 endingAngle,
                 !!CircleDirectionAngleMap[circle.direction][2]
@@ -234,15 +212,20 @@ const drawTyphoonInfo = (info) => {
         };
         if (currentPoint.circles?.length > 0) {
             for (const circle of currentPoint.circles) {
+                if (![1, 2].includes(circle.type) || !Number.isFinite(circle.radius) || circle.radius <= 0) continue;
+                const direction = CircleDirectionAngleMap[circle.direction] ? circle.direction : 1;
                 const feature = new ol.Feature({
                     geometry: new ol.geom.Point(currentPoint.coordinate).transform("EPSG:4326", "EPSG:3857"),
                 });
-                feature.setProperties({ circle });
+                feature.setProperties({ circle: { ...circle, direction } });
                 feature.setStyle(styleFunction);
                 typhoonVector.addFeature(feature);
+                const [x, y] = feature.getGeometry().getCoordinates();
+                extend(fitExtent, [x - circle.radius, y - circle.radius, x + circle.radius, y + circle.radius]);
             }
         }
     }
+    map.getView().fit(fitExtent, { maxZoom: 6, padding: [100, 200, 100, 100] });
 };
 
 window.drawTyphoonInfo = drawTyphoonInfo;
@@ -253,6 +236,7 @@ const clearTyphoonInfo = () => {
     if (typhoonLayer) {
         map.removeLayer(typhoonLayer);
     }
+    window.TyphoonInfoLayer = null;
 };
 
 window.clearTyphoonInfo = clearTyphoonInfo;
