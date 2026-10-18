@@ -301,6 +301,68 @@ test("page readiness waits for delayed GeoJSON parsing and map rendering", async
     }
 });
 
+test("cached stylesheets can finish before Puppeteer emits their request event", async () => {
+    const browser = global.browser;
+    const original = browser.newPage;
+    let reordered = 0;
+    browser.newPage = async function () {
+        const page = await original.call(this);
+        const emit = page.emit;
+        const held = new WeakSet();
+        page.emit = function (event, request, ...args) {
+            if (event === "request" && request.resourceType() === "stylesheet") {
+                held.add(request);
+                return false;
+            }
+            const result = emit.call(this, event, request, ...args);
+            if ((event === "requestfinished" || event === "requestfailed") && held.has(request)) {
+                held.delete(request);
+                reordered++;
+                emit.call(this, "request", request);
+            }
+            return result;
+        };
+        return page;
+    };
+    let page;
+    try {
+        page = await Renderer.createPage(browser, "index.html");
+        assert.ok(reordered > 0, "The stylesheet completion was not reordered.");
+        assert.equal(await page.evaluate(() => getLayerByName("world_base").getSource().getFeatures().length), 242);
+        await Renderer.waitForReady(page);
+    } finally {
+        browser.newPage = original;
+        if (page) await page.close();
+    }
+});
+
+test("initial page loading can exceed the regular ten-second render budget", async () => {
+    const browser = global.browser;
+    const original = browser.newPage;
+    let timer;
+    browser.newPage = async function () {
+        const page = await original.call(this);
+        await page.setRequestInterception(true);
+        page.on("request", (request) => {
+            if (new URL(request.url()).pathname === "/data/world_base.json") {
+                timer = setTimeout(() => { request.continue().catch(() => {}); }, 11000);
+            } else {
+                request.continue();
+            }
+        });
+        return page;
+    };
+    let page;
+    try {
+        page = await Renderer.createPage(browser, "index.html");
+        assert.equal(await page.evaluate(() => getLayerByName("world_base").getSource().getFeatures().length), 242);
+    } finally {
+        clearTimeout(timer);
+        browser.newPage = original;
+        if (page) await page.close();
+    }
+});
+
 test("typhoon forecasts connect from the current position and fit geodesic error circles", async () => {
     const page = global.typhoonPage;
     const info = {

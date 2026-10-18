@@ -2,6 +2,7 @@ const Lock = require("../utils/lock");
 
 const pages = new WeakMap();
 const timeoutMs = 10000;
+const pageLoadTimeoutMs = 60000;
 
 function stateFor(page) {
     const state = page && pages.get(page);
@@ -10,29 +11,39 @@ function stateFor(page) {
 }
 
 function observeResources(page, url) {
-    const state = { url, pending: new Set(), errors: [], listeners: new Set(), version: 0, dirty: true };
+    const state = {
+        url, pending: new Set(), completed: new WeakSet(), errors: [],
+        listeners: new Set(), version: 0, dirty: true,
+    };
     pages.set(page, state);
     const origin = new URL(url).origin;
+    const isLocal = (request) => new URL(request.url()).origin === origin;
     const changed = () => {
         state.version++;
         for (const listener of state.listeners) listener();
     };
     page.on("request", (request) => {
-        if (new URL(request.url()).origin === origin) {
+        // Cached requests can finish before Puppeteer emits their request event.
+        if (isLocal(request) && !state.completed.has(request)) {
             state.pending.add(request);
             changed();
         }
     });
     page.on("requestfinished", (request) => {
+        if (!isLocal(request)) return;
+        state.completed.add(request);
         if (state.pending.delete(request)) changed();
     });
     page.on("requestfailed", (request) => {
-        if (!state.pending.delete(request)) return;
+        if (!isLocal(request) || state.completed.has(request)) return;
+        state.completed.add(request);
+        state.pending.delete(request);
         state.errors.push("Resource failed: " + request.url() + " (" + request.failure()?.errorText + ")");
         changed();
     });
     page.on("response", (response) => {
-        if (state.pending.has(response.request()) && response.status() >= 400) {
+        const request = response.request();
+        if (isLocal(request) && !state.completed.has(request) && response.status() >= 400) {
             state.errors.push("Resource failed: HTTP " + response.status() + " " + response.url());
             changed();
         }
@@ -153,9 +164,9 @@ async function waitForPaint(page, timeout) {
     }), timeout);
 }
 
-async function waitForReady(page) {
+async function waitForReady(page, timeout = timeoutMs) {
     const state = stateFor(page);
-    const deadline = Date.now() + timeoutMs;
+    const deadline = Date.now() + timeout;
     const remaining = () => {
         const timeout = deadline - Date.now();
         if (timeout <= 0) throw new Error("Map readiness timed out.");
@@ -176,9 +187,12 @@ async function loadPage(page) {
     const state = stateFor(page);
     state.dirty = true;
     state.errors = [];
+    for (const request of state.pending) state.completed.add(request);
     state.pending.clear();
-    await page.goto(state.url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
-    await waitForReady(page);
+    // Initial GeoJSON loading and parsing can exceed the regular render budget.
+    const deadline = Date.now() + pageLoadTimeoutMs;
+    await page.goto(state.url, { waitUntil: "domcontentloaded", timeout: pageLoadTimeoutMs });
+    await waitForReady(page, deadline - Date.now());
     state.dirty = false;
 }
 
