@@ -125,7 +125,7 @@ const warning = {
 
 | 警报发布 / 更新 | 警报取消 |
 | --- | --- |
-| ![海啸警报发布或更新](https://i.ikp.yt/2022-11-06-3feafd3c-e496-4e72-ac0a-d0b5569f3a9e.png)<br>按海啸注意报、海啸警报、大海啸警报分别标识涉及区域。 | ![海啸警报取消](https://i.ikp.yt/2022-11-06-458211e2-08ed-412d-8cac-a612acc13851.png)<br>警报取消后，显示当前无海啸警报发表。 |
+| ![海啸警报发布或更新](docs/images/tsunami-warning.png)<br>按海啸注意报、海啸警报、大海啸警报分别标识涉及区域。 | ![海啸警报取消](docs/images/tsunami-cancel.png)<br>警报取消后，显示当前无海啸警报发表。 |
 
 ---
 
