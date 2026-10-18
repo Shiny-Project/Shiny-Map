@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8">
+  <link rel="stylesheet" href="./legend.css">
   <style>
     #map {
       width: 100vw;
@@ -53,24 +54,6 @@
 
     #tsunami-legend {
       opacity: 0;
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: .5rem 1rem;
-      font-family: 'Noto Sans CJK SC';
-    }
-
-    #tsunami-legend>div {
-      display: flex;
-      align-items: center;
-    }
-
-    .tsunami-legend-icon {
-      display: inline-block;
-      margin-right: 10px;
-      height: 3px;
-      width: 40px;
     }
 
     .tsunami-legend-icon-alert {
@@ -123,15 +106,15 @@
     <div id="info-title">
       <span>{Title}</span>
     </div>
-    <div id="tsunami-legend">
+    <div id="tsunami-legend" class="map-legend">
         <div>
-            <i class="tsunami-legend-icon tsunami-legend-icon-alert"></i> <span>大海啸警报</span>
+            <i class="map-legend-swatch tsunami-legend-icon-alert"></i> <span>大海啸警报</span>
         </div>
         <div>
-            <i class="tsunami-legend-icon tsunami-legend-icon-warning"></i> <span>海啸警报</span>
+            <i class="map-legend-swatch tsunami-legend-icon-warning"></i> <span>海啸警报</span>
         </div>
         <div>
-            <i class="tsunami-legend-icon tsunami-legend-icon-notice"></i> <span>海啸注意报</span>
+            <i class="map-legend-swatch tsunami-legend-icon-notice"></i> <span>海啸注意报</span>
         </div>
     </div>
   </div>
