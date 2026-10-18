@@ -122,8 +122,10 @@ const warning = {
 其中区域名按照 JMA 规定的海啸警报区域名填写。
 
 **预览**
-![](https://i.ikp.yt/2022-11-06-3feafd3c-e496-4e72-ac0a-d0b5569f3a9e.png)
-![](https://i.ikp.yt/2022-11-06-458211e2-08ed-412d-8cac-a612acc13851.png)
+
+| 警报发布 / 更新 | 警报取消 |
+| --- | --- |
+| ![海啸警报发布或更新](https://i.ikp.yt/2022-11-06-3feafd3c-e496-4e72-ac0a-d0b5569f3a9e.png)<br>按海啸注意报、海啸警报、大海啸警报分别标识涉及区域。 | ![海啸警报取消](https://i.ikp.yt/2022-11-06-458211e2-08ed-412d-8cac-a612acc13851.png)<br>警报取消后，显示当前无海啸警报发表。 |
 
 ---
 
@@ -238,22 +240,6 @@ interface Circle {
 | `38` | 高潮特别警报 |
 | `39` | 土砂灾害特别警报 |
 
-### 请求示例
-
-```http
-POST /Map/ew
-Content-Type: application/json
-```
-
-```json
-{
-  "warning": {
-    "active": { "33": ["1410011"] },
-    "ended": { "33": ["1410012"] }
-  }
-}
-```
-
 ### 返回值
 
 成功：HTTP 200，返回 1920 × 1080 PNG 的绝对路径。
@@ -272,7 +258,13 @@ Content-Type: application/json
 
 ### 预览
 
-![特别警报示例：横滨市北部生效、南部解除](docs/images/emergency-warning.png)
+以下均为模拟数据。紫色表示特别警报生效，灰色虚线边界表示解除 / 降级。
+
+| 单种特别警报生效 | 多种特别警报并存 |
+| --- | --- |
+| ![京都市大雨特别警报生效](docs/images/emergency-warning-normal.png)<br>京都市的大雨特别警报生效。 | ![宫古岛市和多良间村多种特别警报并存](docs/images/emergency-warning-multiple-kinds.png)<br>多个区域涉及多种特别警报，右侧列出警报种类。 |
+| **部分区域解除** | **所列特别警报全部解除 / 降级** |
+| ![横滨市北部生效、南部解除](docs/images/emergency-warning.png)<br>横滨市北部仍生效，南部已解除 / 降级。 | ![奈良市西部和东部特别警报全部解除或降级](docs/images/emergency-warning-all-released.png)<br>奈良市西部和东部均已解除 / 降级，区域显示为灰色。 |
 
 ## Special Thanks
 
