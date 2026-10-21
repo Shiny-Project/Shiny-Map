@@ -1,0 +1,72 @@
+{
+  "10": {
+    "level": 2,
+    "label": "泛滥注意报解除",
+    "detail": "解除",
+    "ended": true,
+    "color": "#9da7b1"
+  },
+  "20": {
+    "level": 2,
+    "label": "泛滥注意报",
+    "detail": "发布",
+    "ended": false,
+    "color": "#faf500"
+  },
+  "21": {
+    "level": 2,
+    "label": "泛滥注意报",
+    "detail": "继续",
+    "ended": false,
+    "color": "#faf500"
+  },
+  "22": {
+    "level": 2,
+    "label": "泛滥注意报",
+    "detail": "警报解除",
+    "ended": false,
+    "color": "#faf500"
+  },
+  "30": {
+    "level": 3,
+    "label": "泛滥警报",
+    "detail": "发布",
+    "ended": false,
+    "color": "#ff2800"
+  },
+  "31": {
+    "level": 3,
+    "label": "泛滥警报",
+    "detail": "继续",
+    "ended": false,
+    "color": "#ff2800"
+  },
+  "40": {
+    "level": 4,
+    "label": "泛滥危险警报",
+    "detail": "发布",
+    "ended": false,
+    "color": "#9900CC"
+  },
+  "41": {
+    "level": 4,
+    "label": "泛滥危险警报",
+    "detail": "继续",
+    "ended": false,
+    "color": "#9900CC"
+  },
+  "51": {
+    "level": 5,
+    "label": "泛滥特别警报",
+    "detail": "",
+    "ended": false,
+    "color": "#0c000c"
+  },
+  "53": {
+    "level": 5,
+    "label": "泛滥特别警报",
+    "detail": "泛滥水预报",
+    "ended": false,
+    "color": "#0c000c"
+  }
+}

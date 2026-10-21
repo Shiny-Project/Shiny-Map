@@ -346,6 +346,75 @@ interface Circle {
 | **警报解除** | **海底火山** |
 | ![警报解除官方样例（附试验标记）](docs/images/volcano-released.png) | ![海底火山模拟样例](docs/images/volcano-submarine.png) |
 
+## JMA 指定河川洪水情报（VXKO）
+
+`POST /Map/flood_warning`
+
+**参数**
+
+| 参数名 | 参数类型 | 参数说明 |
+| --- | --- | --- |
+| warning | object / JSON string | 河川预报区及洪水情报状态 |
+
+对 `warning` 参数详细定义如下：
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `rivers` | object[] | 必填 | 非空河川预报区数组，每项格式见下方 |
+| `rivers[].code` | string | 必填 | JMA 十二位河川预报区代码，例如小矢部川 `"840410000100"`；自动显示名称 |
+| `rivers[].kind` | string | 必填 | 洪水情报种类代码，见下表 |
+| `rivers[].areas` | string[] | 按河川预报区查找 | 可选，覆盖默认涉及市町村，例如 `["1620200", "1620800"]` |
+| `rivers[].occurredAreas` | string[] | `[]` | L5 泛滥发生信息涉及市町村，使用橙色边界标记；自动加入绘图范围 |
+| `status` | string | `通常` | `通常`：无标记；`訓練`：训练标记；`試験`：试验标记 |
+| `infoType` | string | `発表` | `発表`：普通标题；`訂正`：订正标题；`取消`：电文取消标题 |
+
+所有代码均使用字符串。`code` 使用电文 `Headline` 中 `指定河川洪水予報（予報区域）` 的十二位代码。
+`areas`、`occurredAreas` 使用七位指定河川洪水预报市町村代码，可分别填写电文 `Body/Warning` 中种类代码 `1`、`2` 的 `CityCode`。
+
+填色表示情报涉及市町村，不能作为实际淹水范围。同一市町村涉及多个河川时，优先显示最高生效等级。
+`occurredAreas` 仅用于 L5；未提供时不显示泛滥发生标记。
+
+**种类代码**
+
+| `kind` | 含义 |
+| --- | --- |
+| `10` | L2 泛滥注意报解除 |
+| `20`、`21` | L2 泛滥注意报：发布、继续 |
+| `22` | 警报解除，降为 L2 泛滥注意报，仍生效 |
+| `30`、`31` | L3 泛滥警报：发布、继续 |
+| `40`、`41` | L4 泛滥危险警报：发布、继续 |
+| `51` | L5 泛滥特别警报 / 泛滥发生信息 |
+| `53` | L5 泛滥特别警报（泛滥水预报） |
+
+`kind: "10"` 显示为灰色虚线边界。`infoType: "取消"` 用于取消电文，仍需提供涉及的河川预报区。
+
+**示例**
+
+```json
+{
+    "warning": {
+        "status": "試験",
+        "rivers": [
+            { "code": "840410000100", "kind": "20" }
+        ]
+    }
+}
+```
+
+L5 泛滥发生信息可填写 `{ "code": "820211000103", "kind": "51", "occurredAreas": ["0636700"] }`。
+
+成功返回 `{ "path": "图片绝对路径" }`，图片为 1920 × 1080 PNG。参数错误返回 HTTP 400，`error.name` 为 `bad_flood`。
+
+**预览**
+
+以下采用 JMA 官方样例并添加试验标记。
+
+| L2 泛滥注意报 | L3 泛滥警报 |
+| --- | --- |
+| ![小矢部川泛滥注意报](docs/images/flood-oyabe.png) | ![牛津川泛滥警报](docs/images/flood-ushizu.png) |
+| **L4 泛滥危险警报** | **L5 泛滥特别警报及泛滥发生信息** |
+| ![绿川水系泛滥危险警报](docs/images/flood-midori.png) | ![最上川中流泛滥特别警报](docs/images/flood-mogami.png) |
+
 ## Special Thanks
 
 我们感谢 @9SQ 开源的震度图生产样例及坐标数据。（ https://github.com/9SQ/seismic-intensity-map ）
