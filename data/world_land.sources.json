@@ -1,0 +1,10 @@
+{
+    "sourceUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/9380cca83db5f9aef52d5e762765100745f84b27/geojson/ne_50m_land.geojson",
+    "descriptionUrl": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/50m-land/",
+    "sha256": "e874b27a51d146452be360cafb3cc50c86001074a67d534113e6534682f9826b",
+    "scale": "1:50,000,000",
+    "license": "Public domain",
+    "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/",
+    "processing": "Unmodified land polygons; no country boundaries.",
+    "outputSha256": "e874b27a51d146452be360cafb3cc50c86001074a67d534113e6534682f9826b"
+}

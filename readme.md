@@ -33,6 +33,50 @@
 
 ---
 
+## 地震速报
+
+`POST /Map/earthquake`
+
+生成 1920 × 1080 的地震速报图片。
+
+**参数**
+
+| 参数名 | 参数类型 | 参数说明 |
+| --- | --- | --- |
+| earthquake | object / JSON string | 地震数据 |
+
+`earthquake` 字段：
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| content | string | `M 震级 - 地点` 格式的标题，如 `M 6.3 - 197 km NW of Port-Olry, Vanuatu`；地点可仅含地区名 |
+| location | string | GeoRSS 坐标，顺序为 `纬度 经度`，如 `-13.9906 165.5892` |
+| depth | number / string | 原始 `georss:elev`，单位米，向上为正；如 `-16000` 将显示为深度 `16 千米` |
+| source | string（可选） | 数据来源名称，最多 32 个字符，显示在标题与页脚中 |
+
+**请求示例**
+
+```json
+{
+    "earthquake": {
+        "content": "M 6.3 - 197 km NW of Port-Olry, Vanuatu",
+        "location": "-13.9906 165.5892",
+        "depth": "-16000",
+        "source": "USGS"
+    }
+}
+```
+
+**返回值**
+
+成功返回 `{ "path": "图片绝对路径" }`。无效数据返回 HTTP 400，错误名为 `bad_earthquake`。
+
+**预览**
+
+![地震速报](docs/images/earthquake-vanuatu.png)
+
+---
+
 ## 震度速报
 
 `POST /Map/shindo_early_report`

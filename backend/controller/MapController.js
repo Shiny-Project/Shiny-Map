@@ -2,6 +2,21 @@ const APIResponse = require("../response/APIResponse");
 
 class MapController {
     constructor() {}
+    async earthquake(request, response) {
+        const { prepare } = require("../service/EarthquakeInput");
+        let earthquake;
+        try {
+            earthquake = prepare(request.body.earthquake);
+        } catch (error) {
+            if (error.name !== "EarthquakeInputError") throw error;
+            return response.status(400).json(APIResponse.error("bad_earthquake", error.message));
+        }
+        if (!global.isBrowserLoaded) {
+            return response.status(500).json(APIResponse.error("try_again_later", "人家还没准备好"));
+        }
+        const renderEarthquake = require("../service/EarthquakeService");
+        response.json(APIResponse.success({ path: await renderEarthquake(earthquake) }));
+    }
     async floodWarning(request, response) {
         const { prepare } = require("../service/FloodInput");
         let warning;
