@@ -4,6 +4,7 @@ const path = require("node:path");
 const { before, after, test } = require("node:test");
 const { setTimeout: sleep } = require("node:timers/promises");
 const Renderer = require("../backend/service/MapRenderer");
+const { checkRenderedBaseMap } = require("./map-baseline/base-map-check");
 const fixtures = require("./map-baseline/fixtures.json");
 const fixture = fixtures.find((item) => item.id === "shindo-early-report");
 
@@ -46,6 +47,32 @@ function assertSuccess(result) {
     assert.equal(typeof result.body.path, "string");
     assert.equal(fs.existsSync(result.body.path), true);
 }
+
+test("every map template uses the same China-view basemap", async () => {
+    for (const page of [global.page, global.tsunamiPage, global.typhoonPage, global.ewPage,
+        global.volcanoPage, global.floodPage, global.earthquakePage]) {
+        await checkRenderedBaseMap(page, 242);
+    }
+});
+
+test("city highlighting clears its annotations instead of restoring an old China outline", async () => {
+    const query = new URLSearchParams({ center: "浙江省", cities: JSON.stringify(["杭州市", "宁波市"]) });
+    const response = await fetch("http://localhost:3000/map/highlight?" + query, { signal: AbortSignal.timeout(15000) });
+    assertSuccess({ status: response.status, body: await response.json() });
+    const state = await global.page.evaluate(() => {
+        const layer = getLayerByName("china_map");
+        const features = layer.getSource().getFeatures();
+        return {
+            title: document.getElementById("info-title").textContent.trim(),
+            annotations: features.filter((feature) => feature.getStyleFunction()).length,
+            backgroundStyles: features.flatMap((feature) => layer.getStyleFunction()(feature)),
+        };
+    });
+    assert.equal(state.annotations, 0);
+    assert.equal(state.title, "浙江省城市高亮");
+    assert.deepEqual(state.backgroundStyles, []);
+    await checkRenderedBaseMap(global.page, 242);
+});
 
 test("the runtime uses the installed OpenLayers version and supports fractional zoom with integer fit", async () => {
     const result = await global.page.evaluate(() => {

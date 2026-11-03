@@ -15,6 +15,12 @@ const locations = {
     KOR: [126.98, 37.56],
     TWN: [121.56, 25.03],
 };
+const chinaBorderLocations = {
+    tawang: [91.864, 27.585],
+    itanagar: [93.605, 27.084],
+    pasighat: [95.325, 28.067],
+    aksaiChin: [79, 35],
+};
 const sha256 = (data) => crypto.createHash("sha256").update(data).digest("hex");
 
 function checkMapData(root) {
@@ -34,24 +40,33 @@ function checkMapData(root) {
 }
 
 async function checkRenderedBaseMap(page, expectedCount) {
-    const result = await page.evaluate(({ locations }) => {
+    const result = await page.evaluate(({ locations, chinaBorderLocations }) => {
         const base = map.getLayers().getArray()[0];
         const source = base.getSource();
         return {
             name: base.get("name"),
             visible: base.getVisible(),
+            url: source.getUrl(),
             count: source.getFeatures().length,
             locations: Object.fromEntries(Object.entries(locations).map(([code, coordinate]) => [
                 code,
                 source.getFeaturesAtCoordinate(ol.proj.fromLonLat(coordinate)).map((feature) => feature.get("code")),
             ])),
+            chinaBorderLocations: Object.fromEntries(Object.entries(chinaBorderLocations).map(([name, coordinate]) => [
+                name,
+                source.getFeaturesAtCoordinate(ol.proj.fromLonLat(coordinate)).map((feature) => feature.get("code")),
+            ])),
         };
-    }, { locations });
+    }, { locations, chinaBorderLocations });
     assert.equal(result.name, "world_base", "World base must render beneath administrative and hazard layers.");
+    assert.equal(result.url, "../data/world_base.json", "Every template must load the same China-view basemap.");
     assert.equal(result.visible, true);
     assert.equal(result.count, expectedCount, "World base did not finish loading.");
     for (const code of Object.keys(locations)) {
         assert.ok(result.locations[code].includes(code), "Missing land at reference location: " + code);
+    }
+    for (const [name, codes] of Object.entries(result.chinaBorderLocations)) {
+        assert.deepEqual(codes, ["CHN"], "Incorrect or overlapping China boundary at " + name);
     }
 }
 

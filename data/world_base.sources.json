@@ -7,12 +7,51 @@
     "licenseUrl": "https://www.naturalearthdata.com/about/terms-of-use/"
   },
   "regionalInputs": {
-    "gadm36_CHN_2.json": "d6366a7a308a4cf73fdd5824cd6237b83089104d33a98a27a3f88e181d51e183",
     "gadm36_JPN_2.json": "3cfab2ae4b89ee582dfe88ed980dfc2f46abdf77d27efb3bb90ef59f6211a12a",
     "gadm36_PRK_0.json": "8936c5d68a253dce793105e896f9bd9a7c66b6460118543d124c1459f0f2e8a6",
     "gadm36_KOR_0.json": "161799f430b8f641f54a1f321b1e33b61fa7b7c831010d06ed0c8da5b1e04e5f",
     "gadm36_TWN_0.json": "b5de894a0996ba6c82d08e83a2393c17199ae7479b0bfdd26a171c0b346b5ee0"
   },
-  "processing": "Replace world regions with unions of their original GADM geometries; no regional simplification.",
-  "outputSha256": "7cacfd6ea06cc77809cbbd731713f4b90fdc9229ee1415a5017e64a0fcde7fe3"
+  "chinaBoundary": {
+    "provider": "Tianditu (National Platform for Common Geospatial Information Services)",
+    "descriptionUrl": "https://cloudcenter.tianditu.gov.cn/administrativeDivision",
+    "sourceUrl": "https://cloudcenter.tianditu.gov.cn/api/portal/region/map?gb=156000000&level=2",
+    "retrievedDate": "2026-11-03",
+    "decodedSourceSha256": "aebcd73acc1bae5ca7161a5cd87b2c61e0387984c959a2c84c237e33f161f613",
+    "sourceDecoding": "Gunzip response if needed; each big-endian signed int32 stores one UTF-8 byte shifted left by 2 bits. Decode (value >> 2) & 255, then parse UTF-8 GeoJSON.",
+    "coordinateHandling": "Unshifted geographic longitude/latitude as supplied by Tianditu; no GCJ-02 conversion or coordinate simplification.",
+    "geometryProcessing": "polyclip-ts 0.16.8 with a 1e-10 degree numeric tolerance; no boundary simplification.",
+    "coastalDetail": {
+      "file": "gadm36_CHN_2.json",
+      "sha256": "d6366a7a308a4cf73fdd5824cd6237b83089104d33a98a27a3f88e181d51e183",
+      "extent": [
+        108.5,
+        18,
+        123.5,
+        40
+      ],
+      "processing": "Retain the existing detailed coastline inside this extent, which contains no international land frontier. All land frontiers, Zangnan, Aksai Chin and islands outside the coastal extent use the Tianditu outline."
+    },
+    "processing": "Union 31 mainland provincial MultiPolygons, then retain the GADM coastal detail inside the documented coastal extent. Partition out the retained TWN, HKG and MAC features where they overlap. Replace CHN and subtract its footprint from overlapping regions so the previous border cannot remain inside China.",
+    "approval": "Derived from an official administrative-division dataset; this generated basemap is not an independently approved standard map.",
+    "clippedRegions": [
+      "AFG",
+      "BTN",
+      "IND",
+      "KAS",
+      "KAZ",
+      "KGZ",
+      "LAO",
+      "MMR",
+      "MNG",
+      "NPL",
+      "PAK",
+      "PRK",
+      "RUS",
+      "TJK",
+      "VNM"
+    ]
+  },
+  "processing": "Replace regional outlines with GADM unions except CHN, which uses the pinned Tianditu outline. Clip overlapping regions against CHN. No coordinate simplification.",
+  "outputSha256": "3ccd1cdda1bbcc5e207266bfeef5912494ed15cb1ca57e31f6573821be6be8d3"
 }

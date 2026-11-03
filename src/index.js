@@ -41,7 +41,8 @@ window.JapanSimpleMapLayer.set("name", "japan_simple_map");
 const ChinaMapLayer = new ol.layer.Vector({
     renderBuffer: 2,
     source: ChinaMapVectorSource,
-    style: defaultStyle,
+    // Administrative polygons are annotations for selected cities, not a basemap.
+    style: () => [],
 });
 ChinaMapLayer.set("name", "china_map");
 

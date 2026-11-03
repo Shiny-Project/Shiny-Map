@@ -2,7 +2,7 @@ import "ol/ol.css";
 import ol from "./openlayers";
 import { createBaseMapLayer } from "./base-map";
 
-const landLayer = createBaseMapLayer({ landOnly: true });
+const baseLayer = createBaseMapLayer();
 
 const epicenters = new ol.source.Vector({ wrapX: false });
 const epicenterLayer = new ol.layer.Vector({
@@ -13,7 +13,7 @@ const epicenterLayer = new ol.layer.Vector({
 });
 epicenterLayer.set("name", "epicenter");
 const map = new ol.Map({
-    target: "map", layers: [landLayer, epicenterLayer],
+    target: "map", layers: [baseLayer, epicenterLayer],
     view: new ol.View({ center: ol.proj.fromLonLat([136, 36]), zoom: 5, multiWorld: true }), controls: [],
 });
 window.map = map;

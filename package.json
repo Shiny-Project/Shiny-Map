@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "test": "node --test ./tests/map-baseline/image-diff.test.js ./tests/map-baseline/map-state.test.js ./tests/ew/input.test.js ./tests/tsunami/input.test.js ./tests/volcano/input.test.js ./tests/flood/input.test.js ./tests/earthquake/input.test.js && npm run test:maps",
+        "test": "node --test ./tests/map-baseline/image-diff.test.js ./tests/map-baseline/map-state.test.js ./tests/map-baseline/china-boundary.test.js ./tests/ew/input.test.js ./tests/tsunami/input.test.js ./tests/volcano/input.test.js ./tests/flood/input.test.js ./tests/earthquake/input.test.js && npm run test:maps",
         "test:maps": "npm run build && node --test ./tests/rendering.test.js && node ./tests/ew/render.js && node ./tests/volcano/render.js && node ./tests/flood/render.js && node ./tests/earthquake/render.js && node ./tests/map-baseline/run.js",
         "baseline:maps": "npm run build && node ./tests/map-baseline/run.js --update",
         "benchmark:maps": "npm run build && node ./tests/map-baseline/performance.js",

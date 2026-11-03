@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { setTimeout: sleep } = require("node:timers/promises");
 const { compareImages } = require("../map-baseline/image-diff");
+const { checkRenderedBaseMap } = require("../map-baseline/base-map-check");
 const fixtures = require("./fixtures");
 const directory = path.resolve(__dirname, "../../output/earthquake-samples");
 
@@ -36,6 +37,7 @@ async function run() {
             if (Date.now() > deadline) throw new Error("Earthquake sample browser did not initialize");
             await sleep(50);
         }
+        await checkRenderedBaseMap(global.earthquakePage, 242);
         await global.earthquakePage.evaluate(() => {
             const original = window.setFooter;
             window.setFooter = (value) => original(value.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/,

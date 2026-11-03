@@ -14,6 +14,7 @@ module.exports = {
         const provinceData = require("../definition/china_provinces");
         await page.evaluate(
             (needHighlight, provinceData, center, copyrightText) => {
+                setTitle(center + "城市高亮");
                 map.getView().setCenter(
                     ol.proj.fromLonLat([provinceData[center].longitude, provinceData[center].latitude])
                 );
@@ -55,17 +56,7 @@ module.exports = {
             getLayerByName("china_map")
                 .getSource()
                 .forEachFeature((feature) => {
-                    feature.setStyle(
-                        new ol.style.Style({
-                            fill: new ol.style.Fill({
-                                color: "#444444",
-                            }),
-                            stroke: new ol.style.Stroke({
-                                color: "#aaa",
-                                width: 1,
-                            }),
-                        })
-                    );
+                    feature.setStyle();
                 });
         });
         return path.resolve(process.cwd(), outputPath);

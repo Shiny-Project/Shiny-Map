@@ -1,3 +1,4 @@
 data/jma_flood_*.json text eol=lf
+data/world_base*.json text eol=lf
 tests/flood/official-samples.json text eol=lf
 tests/flood/official/*.xml -text
